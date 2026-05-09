@@ -7,48 +7,60 @@
 namespace {
 	int getRandomDirection()
 	{
-		return (rand() % 3) - 1;
+		return (rand() % 3) - 1; //{-1, 0, 1}
 	}
+	//int getRandomWolfDirection()
+	//{
+	//	if (level == 1) return (rand() % 3) - 1; //{-1, 0, 1}
+	//	else if (level == 2) return (rand() % 5) - 2; //{-2, 0, 2}
+	//	else if (level == 3) return (rand() % 7) - 3; //{-3, 0, 3}
+	//	else return (rand() % 9) - 4; //{-4, 0, 4}
+	//}
 
 	int getRandomVelocityFrames()
 	{
-		return 80 + (rand() % 101);
+		return 80 + (rand() % 101); //[80,180]
 	}
 
 	void resetVelocity(Animal* animal)
 	{
 		animal->curr_vel.x = getRandomDirection();
 		animal->curr_vel.y = getRandomDirection();
-		if (animal->curr_vel.x == 0 && animal->curr_vel.y == 0) {
-			animal->curr_vel.x = 1;
-		}
-		animal->velocityFramesLeft = getRandomVelocityFrames();
+		animal->velocityFramesLeft = getRandomVelocityFrames(); //new frames count for current velocity
 	}
+
+	//void resetWolfVelocity(Animal* wolf)
+	//{
+	//	wolf->curr_vel.x = getRandomWolfDirection();
+	//	wolf->curr_vel.y = getRandomWolfDirection();
+	//	wolf->velocityFramesLeft = getRandomVelocityFrames(); //new frames count for current velocity
+	//}
 
 	void moveWithinField(Animal* animal)
 	{
-		const int minX = 0;
-		const int maxX = config.windWidth - 60;
-		const int minY = 3 * config.toolBarHeight;
-		const int maxY = config.windHeight - config.statusBarHeight - 60;
+		const int minX = 0; //to not leave the window from the left side
+		const int maxX = config.windWidth - 60; //to not leave the window from the right side, considering max animal width is 60
+		const int minY = 3 * config.toolBarHeight; //to not leave the window from the top side, considering the toolbar and budget bar area
+		const int maxY = config.windHeight - config.statusBarHeight - 60; //to not leave the window from the bottom side, considering the status bar area
 
-		animal->curr_pos.x += animal->curr_vel.x;
-		animal->curr_pos.y += animal->curr_vel.y;
-		animal->velocityFramesLeft--;
+		animal->curr_pos.x += animal->curr_vel.x; //adds velocity to current position to move the animal in x-axis
+		animal->curr_pos.y += animal->curr_vel.y; //adds velocity to current position to move the animal in y-axis
+		animal->velocityFramesLeft--; //decreases the frames left for current velocity, to eventually change the velocity
 
-		if (animal->curr_pos.x < minX || animal->curr_pos.x > maxX) {
+		//boundary checking and bouncing back if the animal hits the window borders
+		if ((animal->curr_pos.x < minX && animal->curr_vel.x == -1) || (animal->curr_pos.x > maxX && animal->curr_vel.x == 1)) {
 			animal->curr_vel.x = -animal->curr_vel.x;
 			if (animal->curr_pos.x < minX) animal->curr_pos.x = minX;
 			if (animal->curr_pos.x > maxX) animal->curr_pos.x = maxX;
 		}
 
-		if (animal->curr_pos.y < minY || animal->curr_pos.y > maxY) {
+		if ((animal->curr_pos.y < minY && animal->curr_vel.y == -1) || (animal->curr_pos.y > maxY - 20 && animal->curr_vel.y == 1)) {
 			animal->curr_vel.y = -animal->curr_vel.y;
 			if (animal->curr_pos.y < minY) animal->curr_pos.y = minY;
 			if (animal->curr_pos.y > maxY) animal->curr_pos.y = maxY;
 		}
 
-		animal->RefPoint = animal->curr_pos;
+		animal->RefPoint = animal->curr_pos; //updates the reference point
 	}
 
 	void drawChickenShape(window* pWind, point refPoint, int width, int height)
@@ -182,6 +194,7 @@ void Animal::draw() const
 
 Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
+	animalType = "chick";
 	resetVelocity(this);
 	productIntervalMs = 10000;
 }
@@ -200,14 +213,15 @@ void Chick::moveStep()
 	}
 
 	if (velocityFramesLeft <= 0) {
-		resetVelocity(this);
+		resetVelocity(this); //resets velocity after the frames for current velocity are over
 	}
 
-	moveWithinField(this);
+	moveWithinField(this); //moves the chick according to its velocity and ensures it stays within the field boundaries
 }
 
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
+	animalType = "cow";
 	resetVelocity(this);
 	productIntervalMs = 15000;
 }
@@ -234,7 +248,9 @@ void Cow::moveStep()
 
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
+	animalType = "wolf";
 	resetVelocity(this);
+	//resetWolfVelocity(this);
 }
 
 void Wolf::draw() const
@@ -247,9 +263,10 @@ void Wolf::moveStep()
 {
 	if (velocityFramesLeft <= 0) {
 		resetVelocity(this);
+		//resetWolfVelocity(this);
 	}
 
-	moveWithinField(this);
+	moveWithinField(this);//this will need to change because the speed will depend on the level
 }
 
 Egg::Egg(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
@@ -303,11 +320,11 @@ void Warehouse::draw() const
 Water::Water(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
 }
-
+//simple green filled rectangle to represent water area
 void Water::draw() const
 {
 	window* pWind = pGame->getWind();
 	pWind->SetPen(GREEN, 1);
 	pWind->SetBrush(GREEN);
-	pWind->DrawRectangle(RefPoint.x, RefPoint.y, RefPoint.x + width, RefPoint.y + height);
+	pWind->DrawRectangle(RefPoint.x, RefPoint.y, RefPoint.x + 60, RefPoint.y + 60 , FILLED);
 }
