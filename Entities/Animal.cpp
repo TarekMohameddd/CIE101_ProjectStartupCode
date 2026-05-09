@@ -245,8 +245,8 @@ void Cow::draw() const
 	int remainingSeconds = (remainingMs + 999) / 1000;
 
 	pWind->SetPen(BLACK, 1);
-	pWind->SetFont(16, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(RefPoint.x, RefPoint.y - 20, to_string(remainingSeconds));
+	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(RefPoint.x, RefPoint.y - 10, to_string(remainingSeconds));
 }
 
 
