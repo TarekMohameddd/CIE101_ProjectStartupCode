@@ -36,6 +36,62 @@ Game::~Game()
 	clearDynamicObjects();
 }
 
+void Game::drawFoodArea() const
+{
+	if (!foodAreaVisible)
+		return;
+
+	window* pWindLocal = getWind();
+	pWindLocal->SetPen(LIGHTGREEN, 1);
+	pWindLocal->SetBrush(LIGHTGREEN);
+	pWindLocal->DrawRectangle(
+		foodAreaTopLeft.x,
+		foodAreaTopLeft.y - 30,
+		foodAreaBottomRight.x,
+		foodAreaBottomRight.y
+	);
+
+	pWindLocal->SetPen(DARKGREEN, 3);
+	pWindLocal->SetBrush(LIGHTGREEN);
+	pWindLocal->DrawRectangle(
+		foodAreaTopLeft.x,
+		foodAreaTopLeft.y,
+		foodAreaBottomRight.x,
+		foodAreaBottomRight.y
+	);
+
+	string counterText = "Food: " + to_string(foodCount);
+	pWindLocal->SetPen(BLACK, 1);
+	pWindLocal->SetFont(18, BOLD, BY_NAME, "Arial");
+	pWindLocal->DrawString(foodAreaTopLeft.x + 10, foodAreaTopLeft.y - 25, counterText);
+}
+
+void Game::consumeFood(int amount)
+{
+	if (amount <= 0 || foodCount <= 0)
+		return;
+
+	foodCount -= amount;
+
+	if (foodCount <= 0)
+	{
+		foodCount = 0;
+		window* pWindLocal = getWind();
+		pWindLocal->SetPen(config.bkGrndColor, 1);
+		pWindLocal->SetBrush(config.bkGrndColor);
+		pWindLocal->DrawRectangle(
+			foodAreaTopLeft.x,
+			foodAreaTopLeft.y - 30,
+			foodAreaBottomRight.x,
+			foodAreaBottomRight.y
+		);
+		foodAreaVisible = false;
+		return;
+	}
+
+	drawFoodArea();
+}
+
 window* Game::CreateWind(int x, int y)
 {
 	int left = 1060;
