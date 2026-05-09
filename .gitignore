@@ -1,0 +1,45 @@
+# Visual Studio workspace files
+.vs/
+*.suo
+*.user
+*.VC.db
+*.VC.opendb
+
+# Build output
+Debug/
+Release/
+x64/
+x86/
+*.obj
+*.exe
+*.ilk
+*.pdb
+*.idb
+*.tlog
+*.recipe
+*.lastbuildstate
+
+# Logs
+*.log
+
+# Legacy Visual Studio generated files
+*.opt
+*.plg
+
+# Accidental nested repositories / duplicate project copies
+C++/
+Project C++/
+CIE101_ProjectStartupCode/
+Backup/
+
+# Upgrade reports
+UpgradeLog.htm
+UpgradeLog.XML
+_UpgradeReport_Files/
+
+# Generated or temporary folders not needed for team source sharing
+model_dir/
+settings/
+tmp_dir/
+upload_dir/
+torch_fix_download/
