@@ -37,6 +37,7 @@ Game::~Game()
 
 void Game::drawFoodArea() const
 {
+<<<<<<< Updated upstream
 	if (!foodAreaVisible)
 		return;
 
@@ -86,9 +87,46 @@ void Game::consumeFood(int amount)
 		);
 		foodAreaVisible = false;
 		return;
+=======
+	// x1 = 160 , x2 = 260 , y1 = config.windHeight - config.statusBarHeight - 400 +25 , y2 = config.windHeight - config.statusBarHeight - 400 + 105
+	int left = 160;
+	int top = config.windHeight - config.statusBarHeight - 400 + 25;
+	int right = 260;
+	int bottom = config.windHeight - config.statusBarHeight - 400 + 105;
+	if (y >= top && y <= bottom && x >= left && x <= right) {
+		window* ptWind = CreateWind(500, 500, 10, 10); //can't close this window fom pressing the top right X
+		return ptWind;
+>>>>>>> Stashed changes
 	}
 
+<<<<<<< Updated upstream
 	drawFoodArea();
+=======
+
+void Game::drawWarehouse() const
+{
+	int x = 160;
+	int y = config.windHeight - config.statusBarHeight - 400;
+
+	pWind->SetPen(BLACK, 2);
+	pWind->SetBrush(BROWN);
+	pWind->DrawRectangle(x, y + 25, x + 100, y + 105, FILLED);
+
+	pWind->SetBrush(RED);
+	pWind->DrawTriangle(x - 10, y + 25, x + 50, y, x + 110, y + 25, FILLED);
+}
+// x1 = 160 , x2 = 260 , y1 = config.windHeight - config.statusBarHeight - 400 +25 , y2 = config.windHeight - config.statusBarHeight - 400 + 105
+bool Game::CheckFood(Animal* animal , Water* water) const
+{
+	if (animal == nullptr || water == nullptr)
+		return false;
+
+	if (animal->RefPoint.x <= (water->RefPoint.x + water->width) &&
+		animal->RefPoint.x + animal->width >= water->RefPoint.x &&
+		animal->RefPoint.y <= (water->RefPoint.y + water->height) &&
+		animal->RefPoint.y + animal->height >= water->RefPoint.y) return true;
+	else return false;
+>>>>>>> Stashed changes
 }
 
 void Game::drawstatusbar() const
@@ -370,6 +408,169 @@ void Game::go()
 		if (click != NO_CLICK && y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
 			gameBudgetbar->handleClick(x, y);
 		}
+<<<<<<< Updated upstream
+=======
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) {
+			if (waterCounter == 1) {
+				point p;
+				p.x = x - (30);
+				p.y = y - (30);
+				
+				waterList[waterCount++] = new Water(this, p, 60, 60);
+
+				waterCounter = 0;
+			}
+			window* ptWind = CreateWind(x, y);
+			if (ptWind != nullptr) {
+				ptWind->SetBuffering(true);
+				ptWind->SetPen(config.bkGrndColor, 1);
+				ptWind->SetBrush(config.bkGrndColor);
+				ptWind->DrawRectangle(0, 0, ptWind->GetWidth(), ptWind->GetHeight(), FILLED);
+				ptWind->ChangeTitle("warehouse");
+
+					ptWind->SetPen(BLACK, 1);
+					ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+					ptWind->DrawString(20, 20, "EGGS");
+					ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+					ptWind->DrawString(20, 50, "Price of each Egg 20$");
+					ptWind->DrawString(20, 70, "Eggs: " + to_string(eggsCount));
+					ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+					ptWind->SetPen(BLACK, 1);
+					ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+					ptWind->DrawString(20, 220, "MILKS");
+					ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+					ptWind->DrawString(20, 250, "Price of each Milk 20$");
+					ptWind->DrawString(20, 270, "Milk: " + to_string(producedMilkCount));
+					ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+
+					ptWind->SetPen(WHITE, 1);
+					ptWind->SetBrush(GREEN);
+					ptWind->DrawRectangle(160, 20, 280, 80, FILLED);
+					ptWind->SetPen(WHITE, 1);
+					ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
+					ptWind->DrawString(185, 35, "SELL");
+
+					ptWind->SetBrush(GREEN);
+					ptWind->DrawRectangle(160, 220, 280, 270, FILLED);
+					ptWind->SetPen(WHITE, 1);
+					ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
+					ptWind->DrawString(200, 240, "SELL");
+
+					ptWind->SetPen(BLACK, 1);
+					ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+					ptWind->DrawString(110, 450, "Press ESCAPE to leave");
+
+				ptWind->UpdateBuffer();
+
+				bool warehouseOpen = true;
+				while (warehouseOpen) {
+					click2 = ptWind->GetMouseClick(x1, y1);
+
+					if (click2 != NO_CLICK && x1 >= 160 && x1 <= 280 && y1 >= 20 && y1 <= 80) {
+						budget += (eggsCount * 20);
+						eggsCount = 0;
+
+						ptWind->SetPen(config.bkGrndColor, 1);
+						ptWind->SetBrush(config.bkGrndColor);
+						ptWind->DrawRectangle(47, 270, 80, 285, FILLED);
+						ptWind->DrawRectangle(53, 65, 80, 90, FILLED);
+						ptWind->SetPen(BLACK, 1);
+						ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+						ptWind->DrawString(55, 70, to_string(eggsCount));
+						ptWind->DrawString(55, 270, to_string(producedMilkCount));
+						ptWind->UpdateBuffer();
+
+					}
+					if (click2 != NO_CLICK && x1 >= 160 && x1 <= 280 && y1 >= 220 && y1 <= 270) {
+						budget += (producedMilkCount * 20);
+						producedMilkCount = 0;
+
+						ptWind->SetPen(config.bkGrndColor, 1);
+						ptWind->SetBrush(config.bkGrndColor);
+						ptWind->DrawRectangle(47, 270, 80, 285, FILLED);
+						ptWind->DrawRectangle(53, 65, 80, 90, FILLED);
+						ptWind->SetPen(BLACK, 1);
+						ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+						ptWind->DrawString(55, 70, to_string(eggsCount));
+						ptWind->DrawString(55, 270, to_string(producedMilkCount));
+						ptWind->UpdateBuffer();
+					}
+					char Key2;
+					keytype ktype2 = ptWind->GetKeyPress(Key2);
+					if (ktype2 == ESCAPE) {
+						warehouseOpen = false;
+					}
+
+					Pause(30);
+				}
+
+				delete ptWind;
+				ptWind = nullptr;
+			}
+			for (int i = 0; i < eggCount; i++) {
+				if (eggList[i] == nullptr || eggsCount >= 10)
+					continue;
+
+				point eP = eggList[i]->RefPoint;
+				if ((y >= eP.y && y <= eP.y + 28) && ((x >= eP.x && x <= eP.x + 20))) {
+					delete eggList[i];
+
+					for (int j = i; j < eggCount - 1; j++) {
+						eggList[j] = eggList[j + 1];
+					}
+
+					eggList[eggCount - 1] = nullptr;
+					eggCount--;
+					eggsCount++;
+					break;
+				}
+			}
+			for (int i = 0; i < milkCount; i++) {
+				if (milkList[i] == nullptr || producedMilkCount >= 10)
+					continue;
+
+				point mP = milkList[i]->RefPoint;
+				if ((y >= mP.y && y <= mP.y + 32) && (x >= mP.x && x <= mP.x + 24)) {
+					delete milkList[i];
+
+					for (int j = i; j < milkCount - 1; j++) {
+						milkList[j] = milkList[j + 1];
+					}
+
+					milkList[milkCount - 1] = nullptr;
+					milkCount--;
+					producedMilkCount++;
+					break;
+				}
+			}
+			for (int i = 0; i < wolfCount; i++) {
+				if (wolfList[i] == nullptr)
+					continue;
+				point wP = wolfList[i]->RefPoint;
+				if ((y >= wP.y && y <= wP.y + 60) && (x >= wP.x && x <= wP.x + 60)) {
+					wolfHealth[i]--;
+
+					if (wolfHealth[i] <= 0) {
+						delete wolfList[i];
+						wolfHealth.erase(wolfHealth.begin() + i);
+
+						for (int j = i; j < wolfCount - 1; j++) {
+							wolfList[j] = wolfList[j + 1];
+						}
+
+						wolfList[wolfCount - 1] = nullptr;
+						wolfCount--;
+						budget += 100;
+						break;
+					}
+				}
+			}
+			
+		}
+		else {
+			
+		}
+>>>>>>> Stashed changes
 
 		updateAutoWolfGeneration();
 		clearbackground();
