@@ -64,45 +64,43 @@ void ExitIcon::onClick()
 
 Toolbar::Toolbar(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
-	//First prepare List of images for each icon
-	//To control the order of these images in the menu, reoder them in enum ICONS above	
+	// each icon uses one image from the images folder
 	iconsImages[ICON_RESTART] = "images\\RESTART.jpg";
 	iconsImages[ICON_PAUSE] = "images\\PAUSE.jpg";
 	iconsImages[ICON_RESUME] = "images\\RESUME.jpg";
 	iconsImages[ICON_SAVE] = "images\\SAVE.jpg";
 	iconsImages[ICON_LOAD] = "images\\LOAD.jpg";
-	iconsImages[ICON_EXIT] = "images\\EXIT.jpg";
+	iconsImages[ICON_EXIT] = "images\\toolbar_Exit.jpg";
 	point p;
 	p.x = 0;
 	p.y = 0;
 
 	iconsList = new ToolbarIcon * [ICON_COUNT];
 
-	//For each icon in the tool bar create an object 
+	// create one object for each toolbar icon
 	iconsList[ICON_RESTART] = new RestartIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_RESTART]);
-p.x += config.iconWidth;
+	p.x += config.iconWidth;
 
-iconsList[ICON_PAUSE] = new PauseIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_PAUSE]);
-p.x += config.iconWidth;
+	iconsList[ICON_PAUSE] = new PauseIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_PAUSE]);
+	p.x += config.iconWidth;
 
-iconsList[ICON_RESUME] = new ResumeIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_RESUME]);
-p.x += config.iconWidth;
+	iconsList[ICON_RESUME] = new ResumeIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_RESUME]);
+	p.x += config.iconWidth;
 
-iconsList[ICON_SAVE] = new SaveIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_SAVE]);
-p.x += config.iconWidth;
-iconsList[ICON_LOAD] = new LoadGameIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_LOAD]);
+	iconsList[ICON_SAVE] = new SaveIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_SAVE]);
+	p.x += config.iconWidth;
+	iconsList[ICON_LOAD] = new LoadGameIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_LOAD]);
 
-p.x += config.iconWidth;
+	p.x += config.iconWidth;
 
-iconsList[ICON_EXIT] = new ExitIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_EXIT]);
-	//p.x += config.iconWidth;
+	iconsList[ICON_EXIT] = new ExitIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_EXIT]);
 }
 
 Toolbar::~Toolbar()
 {
 	for (int i = 0; i < ICON_COUNT; i++)
 		delete iconsList[i];
-	delete iconsList;
+	delete[] iconsList;
 }
 
 void Toolbar::draw() const

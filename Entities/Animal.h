@@ -1,5 +1,7 @@
 #pragma once
 #include "../Core/Drawable.h"
+#include <string>
+using std::string;
 
 class Animal :public Drawable
 {
@@ -11,6 +13,7 @@ public:
 	int velocityFramesLeft;
 	long lastProductTime;
 	int productIntervalMs;
+	string animalType;
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
 	virtual void moveStep() = 0;
