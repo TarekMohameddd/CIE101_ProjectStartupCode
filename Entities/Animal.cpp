@@ -184,6 +184,7 @@ Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, string i
 	velocityFramesLeft = 0;
 	lastProductTime = CurrentTime();
 	productIntervalMs = 0;
+	
 }
 
 void Animal::draw() const
@@ -203,6 +204,14 @@ void Chick::draw() const
 {
 	window* pWind = pGame->getWind();
 	drawChickenShape(pWind, RefPoint, width, height);
+	long remainingMs = productIntervalMs - (CurrentTime() - lastProductTime);
+	if (remainingMs < 0)
+		remainingMs = 0;
+	int remainingSeconds = remainingMs / 1000;
+
+	pWind->SetPen(BLACK, 1);
+	pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(RefPoint.x, RefPoint.y - 20, to_string(remainingSeconds));
 }
 
 void Chick::moveStep()
@@ -230,7 +239,16 @@ void Cow::draw() const
 {
 	window* pWind = pGame->getWind();
 	drawCowShape(pWind, RefPoint, width, height);
+	long remainingMs = productIntervalMs - (CurrentTime() - lastProductTime);
+	if (remainingMs < 0)
+		remainingMs = 0;
+	int remainingSeconds = (remainingMs + 999) / 1000;
+
+	pWind->SetPen(BLACK, 1);
+	pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(RefPoint.x, RefPoint.y - 20, to_string(remainingSeconds));
 }
+
 
 void Cow::moveStep()
 {
