@@ -35,7 +35,7 @@ Game::~Game()
 {
 	clearDynamicObjects();
 }
-//me
+
 window* Game::CreateWind(int x, int y)
 {
 	int left = 1060;
@@ -49,7 +49,7 @@ window* Game::CreateWind(int x, int y)
 	return nullptr;
 }
 
-//added this
+
 void Game::drawWarehouse() const
 {
 	int x = config.windWidth - 140;
@@ -63,7 +63,7 @@ void Game::drawWarehouse() const
 	pWind->DrawTriangle(x - 10, y + 25, x + 50, y, x + 110, y + 25, FILLED);
 }
 
-//me
+
 bool Game::CheckFood(Animal* animal , Water* water) const
 {
 	if (animal == nullptr || water == nullptr)
@@ -198,7 +198,7 @@ void Game::updatetimer()
 		drawstatusbar();
 	}
 }
-//me
+
 point Game::getRandomFieldPoint(int objectWidth, int objectHeight) const
 {
 	static std::mt19937 rng(std::random_device{}());
@@ -229,7 +229,7 @@ void Game::addRandomAnimal(string animalType, int objectWidth, int objectHeight)
 		cowAnimals.push_back(cow);
 	}
 }
-//me
+
 //void Game::addRandomWaterArea()
 //{
 //	if (waterCount >= 100) return;
@@ -255,7 +255,7 @@ void Game::addMilk(point p)
 	productPoint.y += 18;
 	milkList[milkCount++] = new Milk(this, productPoint, 24, 32);
 }
-//me
+
 void Game::generateRandomWolf()
 {
 	if (wolfCount >= 5) return;
@@ -263,7 +263,7 @@ void Game::generateRandomWolf()
 	wolfHealth.push_back(wolfHealthBar);
 	wolfList[wolfCount++] = new Wolf(this, p, 60, 60, "images\\wolf.jpg");
 }
-//me but still not fully complete because there is no levels
+
 void Game::updateAutoWolfGeneration()
 {
 	if (currentAnimals > 0) {
@@ -276,9 +276,6 @@ void Game::updateAutoWolfGeneration()
 		}
 	}
 }
-//collide of wolf ill put in a function on top and it checks every time the wolf moves
-//top = refpoint of y ; left =  refpoint of x ; right = refpoint of x + width ; bottom = refpoint of y + height
-//it would be better if it is just a hitbox in the middle and when the wolf hit the hitbox of an animal it disappears
 
 bool isCollide(Animal* wolf , Animal * animal) {
 	if (wolf == nullptr || animal == nullptr)
@@ -620,7 +617,7 @@ void Game::go()
 			if (milkList[i] != nullptr)
 				milkList[i]->draw();
 		}
-		//me
+		
 		for (int i = 0; i < animalCount; i++) {
 			if (animalList[i] == nullptr)
 				continue;

@@ -25,12 +25,12 @@ ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
 
 void ChickIcon::onClick()
 {
-	if (count < 15 && pGame->budget >= pGame->animalBuyingPrice) { //checks budget and chick count limit
-		pGame->budget -= pGame->animalBuyingPrice; //deducts price
+	if (count < 15 && pGame->budget >= pGame->animalBuyingPrice) { 
+		pGame->budget -= pGame->animalBuyingPrice; 
 		pGame->currentAnimals++;
 		pGame->drawbudgetbar();
 		pGame->drawstatusbar();
-		pGame->addRandomAnimal("chick", 60, 60);//adds a new chick to the field at a random location
+		pGame->addRandomAnimal("chick", 60, 60);
 		count++;
 		pGame->registerChickPurchased();
 	}
@@ -46,12 +46,12 @@ CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string
 
 void CowIcon::onClick()
 {
-	if (count < 15 && pGame->budget >= pGame->animalBuyingPrice) { //checks budget and cow count limit
+	if (count < 15 && pGame->budget >= pGame->animalBuyingPrice) { 
 		pGame->budget -= pGame->animalBuyingPrice;
 		pGame->currentAnimals++;
 		pGame->drawbudgetbar();
 		pGame->drawstatusbar();
-		pGame->addRandomAnimal("cow", 60, 60); //adds a new cow to the field at a random location
+		pGame->addRandomAnimal("cow", 60, 60); 
 		pGame->registerCowPurchased();
 		count++;
 	}
@@ -63,11 +63,11 @@ WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
 
 void WaterIcon::onClick()
 {
-	if (pGame->budget >= pGame->waterBuyingPrice) { //checks budget
+	if (pGame->budget >= pGame->waterBuyingPrice) {
 		if (pGame->waterCounter != 0) return;
 		pGame->budget -= pGame->waterBuyingPrice;
 		pGame->drawbudgetbar();
-		//pGame->addRandomWaterArea(); //adds a new water area to the field at a random location
+		//pGame->addRandomWaterArea();
 		pGame->waterCounter++;
 	}
 }
