@@ -24,7 +24,6 @@ private:
 	std::vector<Cow*> cowAnimals;
 	std::vector<long> cowTimers;
 	std::vector<int> wolfHealth;
-	// moved eggsCount and producedMilkCount to public to allow external access from UI
 	Animal* animalList[100] = {};
 	Animal* wolfList[5] = {};
 	int animalCount = 0;

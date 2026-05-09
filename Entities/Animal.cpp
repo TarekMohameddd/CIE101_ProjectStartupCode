@@ -26,26 +26,26 @@ namespace {
 	{
 		animal->curr_vel.x = getRandomDirection();
 		animal->curr_vel.y = getRandomDirection();
-		animal->velocityFramesLeft = getRandomVelocityFrames(); //new frames count for current velocity
+		animal->velocityFramesLeft = getRandomVelocityFrames(); 
 	}
 
 	//void resetWolfVelocity(Animal* wolf)
 	//{
 	//	wolf->curr_vel.x = getRandomWolfDirection();
 	//	wolf->curr_vel.y = getRandomWolfDirection();
-	//	wolf->velocityFramesLeft = getRandomVelocityFrames(); //new frames count for current velocity
+	//	wolf->velocityFramesLeft = getRandomVelocityFrames(); 
 	//}
 
 	void moveWithinField(Animal* animal)
 	{
-		const int minX = 0; //to not leave the window from the left side
-		const int maxX = config.windWidth - 60; //to not leave the window from the right side, considering max animal width is 60
-		const int minY = 3 * config.toolBarHeight; //to not leave the window from the top side, considering the toolbar and budget bar area
-		const int maxY = config.windHeight - config.statusBarHeight - 60; //to not leave the window from the bottom side, considering the status bar area
+		const int minX = 0; 
+		const int maxX = config.windWidth - 60; 
+		const int minY = 3 * config.toolBarHeight; 
+		const int maxY = config.windHeight - config.statusBarHeight - 60; 
 
-		animal->curr_pos.x += animal->curr_vel.x; //adds velocity to current position to move the animal in x-axis
-		animal->curr_pos.y += animal->curr_vel.y; //adds velocity to current position to move the animal in y-axis
-		animal->velocityFramesLeft--; //decreases the frames left for current velocity, to eventually change the velocity
+		animal->curr_pos.x += animal->curr_vel.x; 
+		animal->curr_pos.y += animal->curr_vel.y; 
+		animal->velocityFramesLeft--; 
 
 		//boundary checking and bouncing back if the animal hits the window borders
 		if ((animal->curr_pos.x < minX && animal->curr_vel.x == -1) || (animal->curr_pos.x > maxX && animal->curr_vel.x == 1)) {
@@ -216,7 +216,7 @@ void Chick::moveStep()
 		resetVelocity(this); //resets velocity after the frames for current velocity are over
 	}
 
-	moveWithinField(this); //moves the chick according to its velocity and ensures it stays within the field boundaries
+	moveWithinField(this); 
 }
 
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
@@ -266,7 +266,7 @@ void Wolf::moveStep()
 		//resetWolfVelocity(this);
 	}
 
-	moveWithinField(this);//this will need to change because the speed will depend on the level
+	moveWithinField(this);
 }
 
 Egg::Egg(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
@@ -320,7 +320,7 @@ void Warehouse::draw() const
 Water::Water(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
 }
-//simple green filled rectangle to represent water area
+
 void Water::draw() const
 {
 	window* pWind = pGame->getWind();
