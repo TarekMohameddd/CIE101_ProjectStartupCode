@@ -251,10 +251,18 @@ void Game::updatetimer()
 	if (!paused && timer > 0 && ElapsedTime(1000))
 	{
 		timer--;
+
+		if (timer == 0)
+		{
+			level++;
+			setInitialTimerByLevel();
+		}
+
 		drawbudgetbar();
 		drawstatusbar();
 	}
 }
+
 
 point Game::getRandomFieldPoint(int objectWidth, int objectHeight) const
 {
@@ -666,9 +674,9 @@ void Game::restartGame()
 {
 	clearDynamicObjects();
 	budget = 2000;
-	timer = 120;
 	goal = 5;
 	level = 1;
+	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
 	animalBuyingPrice = 200;
@@ -701,9 +709,9 @@ void Game::resetgame()
 	clearDynamicObjects();
 	clearbackground();
 	budget = 2000;
-	timer = 120;
 	goal = 5;
 	level = 1;
+	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
 	animalBuyingPrice = 200;
@@ -755,3 +763,24 @@ void Game::clearDynamicObjects()
 	}
 	waterCount = 0;
 }
+void Game::setInitialTimerByLevel() {
+	if (level == 1) {
+		timer = 120;
+	}
+	else if (level == 2) {
+		timer = 100;
+	}
+	else if (level == 3) {
+		timer = 80;
+	}
+
+	else if (level == 4) {
+		timer = 60;
+	}
+	else {
+		timer = 40;
+	}
+
+	
+}
+

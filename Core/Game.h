@@ -38,6 +38,8 @@ private:
 	void updateOneSecond();
 	void updateAnimalProduction(long deltaMs);
 	void clearDynamicObjects();
+	void setInitialTimerByLevel();
+
 
 	//bool CheckFood(Animal* animal , Water* water) const;
 	void drawWarehouse() const;
