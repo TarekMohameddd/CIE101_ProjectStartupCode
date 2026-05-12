@@ -26,26 +26,26 @@ namespace {
 	{
 		animal->curr_vel.x = getRandomDirection();
 		animal->curr_vel.y = getRandomDirection();
-		animal->velocityFramesLeft = getRandomVelocityFrames(); 
+		animal->velocityFramesLeft = getRandomVelocityFrames(); //new frames count for current velocity
 	}
 
 	//void resetWolfVelocity(Animal* wolf)
 	//{
 	//	wolf->curr_vel.x = getRandomWolfDirection();
 	//	wolf->curr_vel.y = getRandomWolfDirection();
-	//	wolf->velocityFramesLeft = getRandomVelocityFrames(); 
+	//	wolf->velocityFramesLeft = getRandomVelocityFrames(); //new frames count for current velocity
 	//}
 
 	void moveWithinField(Animal* animal)
 	{
-		const int minX = 0; 
-		const int maxX = config.windWidth - 60; 
-		const int minY = 3 * config.toolBarHeight; 
-		const int maxY = config.windHeight - config.statusBarHeight - 60; 
+		const int minX = 0; //to not leave the window from the left side
+		const int maxX = config.windWidth - 60; //to not leave the window from the right side, considering max animal width is 60
+		const int minY = 3 * config.toolBarHeight; //to not leave the window from the top side, considering the toolbar and budget bar area
+		const int maxY = config.windHeight - config.statusBarHeight - 60; //to not leave the window from the bottom side, considering the status bar area
 
-		animal->curr_pos.x += animal->curr_vel.x; 
-		animal->curr_pos.y += animal->curr_vel.y; 
-		animal->velocityFramesLeft--; 
+		animal->curr_pos.x += animal->curr_vel.x; //adds velocity to current position to move the animal in x-axis
+		animal->curr_pos.y += animal->curr_vel.y; //adds velocity to current position to move the animal in y-axis
+		animal->velocityFramesLeft--; //decreases the frames left for current velocity, to eventually change the velocity
 
 		//boundary checking and bouncing back if the animal hits the window borders
 		if ((animal->curr_pos.x < minX && animal->curr_vel.x == -1) || (animal->curr_pos.x > maxX && animal->curr_vel.x == 1)) {
@@ -184,7 +184,6 @@ Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, string i
 	velocityFramesLeft = 0;
 	lastProductTime = CurrentTime();
 	productIntervalMs = 0;
-	
 }
 
 void Animal::draw() const
@@ -204,14 +203,6 @@ void Chick::draw() const
 {
 	window* pWind = pGame->getWind();
 	drawChickenShape(pWind, RefPoint, width, height);
-	long remainingMs = productIntervalMs - (CurrentTime() - lastProductTime);
-	if (remainingMs < 0)
-		remainingMs = 0;
-	int remainingSeconds = remainingMs / 1000;
-
-	pWind->SetPen(BLACK, 1);
-	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(RefPoint.x, RefPoint.y - 10, to_string(remainingSeconds));
 }
 
 void Chick::moveStep()
@@ -225,7 +216,7 @@ void Chick::moveStep()
 		resetVelocity(this); //resets velocity after the frames for current velocity are over
 	}
 
-	moveWithinField(this); 
+	moveWithinField(this); //moves the chick according to its velocity and ensures it stays within the field boundaries
 }
 
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
@@ -239,16 +230,7 @@ void Cow::draw() const
 {
 	window* pWind = pGame->getWind();
 	drawCowShape(pWind, RefPoint, width, height);
-	long remainingMs = productIntervalMs - (CurrentTime() - lastProductTime);
-	if (remainingMs < 0)
-		remainingMs = 0;
-	int remainingSeconds = (remainingMs + 999) / 1000;
-
-	pWind->SetPen(BLACK, 1);
-	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(RefPoint.x, RefPoint.y - 10, to_string(remainingSeconds));
 }
-
 
 void Cow::moveStep()
 {
@@ -284,7 +266,7 @@ void Wolf::moveStep()
 		//resetWolfVelocity(this);
 	}
 
-	moveWithinField(this);
+	moveWithinField(this);//this will need to change because the speed will depend on the level
 }
 
 Egg::Egg(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
@@ -338,7 +320,7 @@ void Warehouse::draw() const
 Water::Water(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
 }
-
+//simple green filled rectangle to represent water area
 void Water::draw() const
 {
 	window* pWind = pGame->getWind();
