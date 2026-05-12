@@ -19,38 +19,36 @@ private:
 	point foodAreaBottomRight;
 	int foodCount = 0;
 	bool foodAreaVisible = true;
-
 	std::vector<Chick*> chickAnimals;
 	std::vector<long> chickTimers;
 	std::vector<Cow*> cowAnimals;
 	std::vector<long> cowTimers;
 	std::vector<int> wolfHealth;
-
 	Animal* animalList[100] = {};
 	Animal* wolfList[5] = {};
 	int animalCount = 0;
-
 	Egg* eggList[100] = {};
 	int eggCount = 0;
-
 	Milk* milkList[100] = {};
 	int milkCount = 0;
-
 	Water* waterList[100] = {};
 	int waterCount = 0;
 	int wolfCount = 0;
 	int wolfHealthBar = 5;
-
 	void updateOneSecond();
 	void updateAnimalProduction(long deltaMs);
 	void clearDynamicObjects();
+	void setInitialTimerByLevel();
+
+
+	//bool CheckFood(Animal* animal , Water* water) const;
 	void drawWarehouse() const;
 
 public:
 	int budget = 2000;
 	int timer = 120;
-	int goal = 5000;      
-	int level = 1;        
+	int goal = 5;
+	int level = 1;
 	int score = 0;
 	int currentAnimals = 0;
 	int animalBuyingPrice = 200;
@@ -63,15 +61,14 @@ public:
 	int producedMilkCount = 0;
 	int windEgg = 0;
 	int windMilk = 0;
-
 	Game();
 	~Game();
 
 	window* CreateWind(int x, int y);
+
 	clicktype getMouseClick(int& x, int& y) const;
 	string getSrting() const;
 	window* CreateWind(int, int, int, int) const;
-
 	void createToolbar();
 	void drawFoodArea() const;
 	void consumeFood(int amount);
@@ -85,7 +82,6 @@ public:
 	void updatetimer();
 	void registerChickPurchased();
 	void registerCowPurchased();
-
 	point getRandomFieldPoint(int objectWidth, int objectHeight) const;
 	void addRandomAnimal(string animalType, int objectWidth, int objectHeight);
 	void addRandomWaterArea();
@@ -93,7 +89,6 @@ public:
 	void addMilk(point p);
 	void generateRandomWolf();
 	void updateAutoWolfGeneration();
-
 	void printBudget(string msg) const;
 	void clearStatusBar() const;
 	void clearbackground() const;
