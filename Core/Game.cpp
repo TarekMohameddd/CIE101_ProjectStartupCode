@@ -36,23 +36,81 @@ Game::~Game()
 	clearDynamicObjects();
 }
 
+void Game::drawFoodArea() const
+{
+	if (!foodAreaVisible)
+		return;
+
+	window* pWindLocal = getWind();
+	pWindLocal->SetPen(LIGHTGREEN, 1);
+	pWindLocal->SetBrush(LIGHTGREEN);
+	pWindLocal->DrawRectangle(
+		foodAreaTopLeft.x,
+		foodAreaTopLeft.y - 30,
+		foodAreaBottomRight.x,
+		foodAreaBottomRight.y
+	);
+
+	pWindLocal->SetPen(DARKGREEN, 3);
+	pWindLocal->SetBrush(LIGHTGREEN);
+	pWindLocal->DrawRectangle(
+		foodAreaTopLeft.x,
+		foodAreaTopLeft.y,
+		foodAreaBottomRight.x,
+		foodAreaBottomRight.y
+	);
+
+	string counterText = "Food: " + to_string(foodCount);
+	pWindLocal->SetPen(BLACK, 1);
+	pWindLocal->SetFont(18, BOLD, BY_NAME, "Arial");
+	pWindLocal->DrawString(foodAreaTopLeft.x + 10, foodAreaTopLeft.y - 25, counterText);
+}
+
+void Game::consumeFood(int amount)
+{
+	if (amount <= 0 || foodCount <= 0)
+		return;
+
+	foodCount -= amount;
+
+	if (foodCount <= 0)
+	{
+		foodCount = 0;
+		window* pWindLocal = getWind();
+		pWindLocal->SetPen(config.bkGrndColor, 1);
+		pWindLocal->SetBrush(config.bkGrndColor);
+		pWindLocal->DrawRectangle(
+			foodAreaTopLeft.x,
+			foodAreaTopLeft.y - 30,
+			foodAreaBottomRight.x,
+			foodAreaBottomRight.y
+		);
+		foodAreaVisible = false;
+		return;
+	}
+
+	drawFoodArea();
+}
+
 window* Game::CreateWind(int x, int y)
 {
-	int left = 1060;
-	int top = 465;
-	int right = 1160;
-	int bottom = 545;
+	// x1 = 160 , x2 = 260 , y1 = config.windHeight - config.statusBarHeight - 400 +25 , y2 = config.windHeight - config.statusBarHeight - 400 + 105
+	int left = 160;
+	int top = config.windHeight - config.statusBarHeight - 400 + 25;
+	int right = 260;
+	int bottom = config.windHeight - config.statusBarHeight - 400 + 105;
 	if (y >= top && y <= bottom && x >= left && x <= right) {
-		window* ptWind = CreateWind(500, 500, 10, 10);
+		window* ptWind = CreateWind(500, 500, 10, 10); //can't close this window fom pressing the top right X
 		return ptWind;
 	}
 	return nullptr;
 }
 
+
 void Game::drawWarehouse() const
 {
-	int x = config.windWidth - 140;
-	int y = config.windHeight - config.statusBarHeight - 110;
+	int x = 160;
+	int y = config.windHeight - config.statusBarHeight - 400;
 
 	pWind->SetPen(BLACK, 2);
 	pWind->SetBrush(BROWN);
@@ -61,6 +119,7 @@ void Game::drawWarehouse() const
 	pWind->SetBrush(RED);
 	pWind->DrawTriangle(x - 10, y + 25, x + 50, y, x + 110, y + 25, FILLED);
 }
+
 
 bool Game::CheckFood(Animal* animal, Water* water) const
 {
@@ -76,8 +135,6 @@ bool Game::CheckFood(Animal* animal, Water* water) const
 
 void Game::drawstatusbar() const
 {
-	if (timer <= 0) return;
-
 	clearStatusBar();
 	pWind->SetPen(WHITE, 1);
 	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
@@ -195,25 +252,17 @@ void Game::updatetimer()
 	{
 		timer--;
 
-		if (budget >= goal) {
+		if (timer == 0)
+		{
 			level++;
-			goal = goal * 2;
-			printMessage("Level Up! Goal Reached!");
-		}
-
-		if (timer <= 0) {
-			timer = 0;
-			paused = true;
-			printMessage("GAME OVER!");
+			setInitialTimerByLevel();
 		}
 
 		drawbudgetbar();
 		drawstatusbar();
 	}
-	else if (timer <= 0) {
-		printMessage("GAME OVER!");
-	}
 }
+
 
 point Game::getRandomFieldPoint(int objectWidth, int objectHeight) const
 {
@@ -231,11 +280,11 @@ void Game::addRandomAnimal(string animalType, int objectWidth, int objectHeight)
 {
 	if (animalCount >= 100) return;
 
-	point p = getRandomFieldPoint(objectWidth, objectHeight);
+	point p = getRandomFieldPoint(objectWidth, objectHeight); // get random point for the animal within the field boundaries
 
 	if (animalType == "chick") {
-		Chick* chick = new Chick(this, p, objectWidth, objectHeight, "images\\chick.jpg");
-		animalList[animalCount++] = chick;
+		Chick* chick = new Chick(this, p, objectWidth, objectHeight, "images\\chick.jpg");//create a new animal object with the random point
+		animalList[animalCount++] = chick;//add animal to the animal list and chickAnimals vector (is there to check number of animals since the wolf is in the same family)
 		chickAnimals.push_back(chick);
 
 	}
@@ -245,6 +294,13 @@ void Game::addRandomAnimal(string animalType, int objectWidth, int objectHeight)
 		cowAnimals.push_back(cow);
 	}
 }
+
+//void Game::addRandomWaterArea()
+//{
+//	if (waterCount >= 100) return;
+//	point p = getRandomFieldPoint(60, 60);
+//	waterList[waterCount++] = new Water(this, p, 60, 60);
+//}
 
 void Game::addEgg(point p)
 {
@@ -293,21 +349,15 @@ bool isCollide(Animal* wolf, Animal* animal) {
 	if (wolf->RefPoint.x <= (animal->RefPoint.x + animal->width) &&
 		wolf->RefPoint.x + wolf->width >= animal->RefPoint.x &&
 		wolf->RefPoint.y <= (animal->RefPoint.y + animal->height) &&
-		wolf->RefPoint.y + animal->height >= wolf->RefPoint.y) return true;
+		wolf->RefPoint.y + wolf->height >= animal->RefPoint.y) return true;
 	else return false;
 }
 
 void Game::updateOneSecond()
 {
 	int animalsCount = static_cast<int>(chickAnimals.size()) + static_cast<int>(cowAnimals.size());
-	if (animalsCount <= 0 && currentAnimals <= 0)
+	if (animalsCount <= 0)
 		return;
-
-	if (budget >= goal) {
-		level++;
-		goal = goal + 1000;
-		printMessage("Level Increased!");
-	}
 
 	drawstatusbar();
 }
@@ -330,7 +380,7 @@ void Game::registerCowPurchased()
 void Game::printMessage(string msg) const
 {
 	clearStatusBar();
-	pWind->SetPen(RED, 50);
+	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(10, config.windHeight - (int)(0.85 * config.statusBarHeight), msg);
 }
@@ -378,7 +428,7 @@ void Game::go()
 		if (click != NO_CLICK && y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
 			gameBudgetbar->handleClick(x, y);
 		}
-		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) {
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) { //me
 			if (waterCounter == 1) {
 				point p;
 				p.x = x - (30);
@@ -398,38 +448,31 @@ void Game::go()
 
 				ptWind->SetPen(BLACK, 1);
 				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(205, 20, "EGGS");
-				ptWind->DrawString(125, 65, "Price of each Egg 20$");
-				ptWind->DrawString(238, 135, to_string(windEgg));
-				ptWind->SetPen(BLACK, 2);
-				ptWind->SetBrush(LIGHTGRAY);
-				ptWind->DrawRectangle(155, 125, 210, 180, FILLED);
-				ptWind->DrawRectangle(290, 125, 345, 180, FILLED);
-				ptWind->SetPen(BLACK, 5);
-				ptWind->DrawLine(169, 152, 196, 152);
-				ptWind->DrawLine(304, 152, 331, 152);
-				ptWind->DrawLine(317, 139, 317, 166);
-
+				ptWind->DrawString(20, 20, "EGGS");
+				ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+				ptWind->DrawString(20, 50, "Price of each Egg 20$");
+				ptWind->DrawString(20, 70, "Eggs: " + to_string(eggsCount));
+				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
 				ptWind->SetPen(BLACK, 1);
 				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(200, 220, "MILKS");
-				ptWind->DrawString(125, 265, "Price of each Milk 20$");
-				ptWind->DrawString(238, 335, to_string(windMilk));
-				ptWind->SetPen(BLACK, 2);
-				ptWind->SetBrush(LIGHTGRAY);
-				ptWind->DrawRectangle(155, 325, 210, 380, FILLED);
-				ptWind->DrawRectangle(290, 325, 345, 380, FILLED);
-				ptWind->SetPen(BLACK, 5);
-				ptWind->DrawLine(169, 352, 196, 352);
-				ptWind->DrawLine(304, 352, 331, 352);
-				ptWind->DrawLine(317, 339, 317, 366);
+				ptWind->DrawString(20, 220, "MILKS");
+				ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+				ptWind->DrawString(20, 250, "Price of each Milk 20$");
+				ptWind->DrawString(20, 270, "Milk: " + to_string(producedMilkCount));
+				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
 
-				ptWind->SetPen(BLACK, 2);
+				ptWind->SetPen(WHITE, 1);
 				ptWind->SetBrush(GREEN);
-				ptWind->DrawRectangle(180, 400, 300, 450, FILLED);
+				ptWind->DrawRectangle(160, 20, 280, 80, FILLED);
 				ptWind->SetPen(WHITE, 1);
 				ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(215, 412, "SELL");
+				ptWind->DrawString(185, 35, "SELL");
+
+				ptWind->SetBrush(GREEN);
+				ptWind->DrawRectangle(160, 220, 280, 270, FILLED);
+				ptWind->SetPen(WHITE, 1);
+				ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
+				ptWind->DrawString(200, 240, "SELL");
 
 				ptWind->SetPen(BLACK, 1);
 				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
@@ -441,73 +484,33 @@ void Game::go()
 				while (warehouseOpen) {
 					click2 = ptWind->GetMouseClick(x1, y1);
 
-					if (click2 != NO_CLICK && x1 >= 290 && x1 <= 345 && y1 >= 125 && y1 <= 180) {
-						if (eggsCount > 0 && windEgg < eggsCount) {
-							windEgg++;
-							ptWind->SetPen(config.bkGrndColor, 1);
-							ptWind->SetBrush(config.bkGrndColor);
-							ptWind->DrawRectangle(220, 125, 280, 180, FILLED);
-							ptWind->SetPen(BLACK, 1);
-							ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-							ptWind->DrawString(238, 135, to_string(windEgg));
-							ptWind->UpdateBuffer();
-						}
-					}
-
-					if (click2 != NO_CLICK && x1 >= 155 && x1 <= 210 && y1 >= 125 && y1 <= 180) {
-						if (windEgg > 0) {
-							windEgg--;
-							ptWind->SetPen(config.bkGrndColor, 1);
-							ptWind->SetBrush(config.bkGrndColor);
-							ptWind->DrawRectangle(220, 125, 280, 180, FILLED);
-							ptWind->SetPen(BLACK, 1);
-							ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-							ptWind->DrawString(238, 135, to_string(windEgg));
-							ptWind->UpdateBuffer();
-						}
-					}
-
-					if (click2 != NO_CLICK && x1 >= 290 && x1 <= 345 && y1 >= 325 && y1 <= 380) {
-						if (producedMilkCount > 0 && windMilk < producedMilkCount) {
-							windMilk++;
-							ptWind->SetPen(config.bkGrndColor, 1);
-							ptWind->SetBrush(config.bkGrndColor);
-							ptWind->DrawRectangle(220, 325, 280, 380, FILLED);
-							ptWind->SetPen(BLACK, 1);
-							ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-							ptWind->DrawString(238, 335, to_string(windMilk));
-							ptWind->UpdateBuffer();
-						}
-					}
-
-					if (click2 != NO_CLICK && x1 >= 155 && x1 <= 210 && y1 >= 325 && y1 <= 380) {
-						if (windMilk > 0) {
-							windMilk--;
-							ptWind->SetPen(config.bkGrndColor, 1);
-							ptWind->SetBrush(config.bkGrndColor);
-							ptWind->DrawRectangle(220, 325, 280, 380, FILLED);
-							ptWind->SetPen(BLACK, 1);
-							ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-							ptWind->DrawString(238, 335, to_string(windMilk));
-							ptWind->UpdateBuffer();
-						}
-					}
-
-					if (click2 != NO_CLICK && x1 >= 190 && x1 <= 310 && y1 >= 400 && y1 <= 450) {
-						budget += (windEgg * 20) + (windMilk * 20);
-						eggsCount -= windEgg;
-						producedMilkCount -= windMilk;
-						windEgg = 0;
-						windMilk = 0;
+					if (click2 != NO_CLICK && x1 >= 160 && x1 <= 280 && y1 >= 20 && y1 <= 80) {
+						budget += (eggsCount * 20);
+						eggsCount = 0;
 
 						ptWind->SetPen(config.bkGrndColor, 1);
 						ptWind->SetBrush(config.bkGrndColor);
-						ptWind->DrawRectangle(220, 125, 280, 180, FILLED);
-						ptWind->DrawRectangle(220, 325, 280, 380, FILLED);
+						ptWind->DrawRectangle(47, 270, 80, 285, FILLED);
+						ptWind->DrawRectangle(53, 65, 80, 90, FILLED);
 						ptWind->SetPen(BLACK, 1);
-						ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-						ptWind->DrawString(238, 135, to_string(windEgg));
-						ptWind->DrawString(238, 335, to_string(windMilk));
+						ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+						ptWind->DrawString(55, 70, to_string(eggsCount));
+						ptWind->DrawString(55, 270, to_string(producedMilkCount));
+						ptWind->UpdateBuffer();
+
+					}
+					if (click2 != NO_CLICK && x1 >= 160 && x1 <= 280 && y1 >= 220 && y1 <= 270) {
+						budget += (producedMilkCount * 20);
+						producedMilkCount = 0;
+
+						ptWind->SetPen(config.bkGrndColor, 1);
+						ptWind->SetBrush(config.bkGrndColor);
+						ptWind->DrawRectangle(47, 270, 80, 285, FILLED);
+						ptWind->DrawRectangle(53, 65, 80, 90, FILLED);
+						ptWind->SetPen(BLACK, 1);
+						ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+						ptWind->DrawString(55, 70, to_string(eggsCount));
+						ptWind->DrawString(55, 270, to_string(producedMilkCount));
 						ptWind->UpdateBuffer();
 					}
 
@@ -583,10 +586,14 @@ void Game::go()
 			}
 
 		}
+		else {
+
+		}
 
 		updateAutoWolfGeneration();
 		clearbackground();
 		drawWarehouse();
+		//me
 
 		for (int i = 0; i < waterCount; i++) {
 			if (waterList[i] == nullptr)
@@ -616,8 +623,8 @@ void Game::go()
 					break;
 				}
 			}
-		}
 
+		}
 		for (int i = 0; i < eggCount; i++) {
 			if (eggList[i] != nullptr)
 				eggList[i]->draw();
@@ -633,8 +640,8 @@ void Game::go()
 
 			animalList[i]->moveStep();
 			animalList[i]->draw();
-		}
 
+		}
 		for (int i = 0; i < wolfCount; i++) {
 			if (wolfList[i] == nullptr)
 				continue;
@@ -663,14 +670,13 @@ void Game::go()
 		Pause(30);
 	} while (!isExit);
 }
-
 void Game::restartGame()
 {
 	clearDynamicObjects();
 	budget = 2000;
-	timer = 120;
-	goal = 5000;
+	goal = 5;
 	level = 1;
+	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
 	animalBuyingPrice = 200;
@@ -703,9 +709,9 @@ void Game::resetgame()
 	clearDynamicObjects();
 	clearbackground();
 	budget = 2000;
-	timer = 120;
-	goal = 5000;
+	goal = 5;
 	level = 1;
+	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
 	animalBuyingPrice = 200;
@@ -757,3 +763,24 @@ void Game::clearDynamicObjects()
 	}
 	waterCount = 0;
 }
+void Game::setInitialTimerByLevel() {
+	if (level == 1) {
+		timer = 120;
+	}
+	else if (level == 2) {
+		timer = 100;
+	}
+	else if (level == 3) {
+		timer = 80;
+	}
+
+	else if (level == 4) {
+		timer = 60;
+	}
+	else {
+		timer = 40;
+	}
+
+	
+}
+
