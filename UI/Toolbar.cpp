@@ -1,6 +1,7 @@
 #include "Toolbar.h"
 #include "../Config/GameConfig.h"
 #include "../Core/Game.h"
+#include "../CMUgraphicsLib/auxil.h"
 
 ToolbarIcon::ToolbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Drawable(r_pGame, r_point, r_width, r_height)
 {
@@ -20,6 +21,8 @@ PauseIcon::PauseIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
 void PauseIcon::onClick()
 {
 	pGame->paused = true;
+	pGame->pauseStartTime = CurrentTime();
+	pGame->pauseBackgroundMusic();
 }
 ResumeIcon::ResumeIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: ToolbarIcon(r_pGame, r_point, r_width, r_height, img_path) {
@@ -27,7 +30,10 @@ ResumeIcon::ResumeIcon(Game* r_pGame, point r_point, int r_width, int r_height, 
 
 void ResumeIcon::onClick()
 {
+	long pausedDuration = CurrentTime() - pGame->pauseStartTime;
+	pGame->adjustProductionTimersAfterPause(pausedDuration);
 	pGame->paused = false;
+	pGame->resumeBackgroundMusic();
 }
 SaveIcon::SaveIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: ToolbarIcon(r_pGame, r_point, r_width, r_height, img_path) {

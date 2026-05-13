@@ -61,6 +61,7 @@ public:
 	int producedMilkCount = 0;
 	int windEgg = 0;
 	int windMilk = 0;
+	long pauseStartTime;
 	Game();
 	~Game();
 
@@ -95,4 +96,10 @@ public:
 	void printMessage(string msg) const;
 	void go();
 	window* getWind() const;
+	void adjustProductionTimersAfterPause(long pausedDuration);
+	void playBackgroundMusic();
+	void pauseBackgroundMusic();
+	void resumeBackgroundMusic();
+	void stopBackgroundMusic();
+
 };

@@ -5,6 +5,9 @@
 #include <utility>
 #include "../Config/GameConfig.h"
 #include "../CMUgraphicsLib/auxil.h"
+#include <windows.h>
+#include <mmsystem.h>
+
 
 Game::Game()
 {
@@ -13,6 +16,7 @@ Game::Game()
 	gameStartTime = CurrentTime();
 	lastWolfSpawnTime = gameStartTime;
 	lastProductionUpdateTime = gameStartTime;
+	pauseStartTime = 0;
 	backgroundImage.Open("images\\farmback.jpg");
 	pWind->SetBuffering(true);
 
@@ -29,11 +33,14 @@ Game::Game()
 	clearbackground();
 	clearStatusBar();
 	drawstatusbar();
+	playBackgroundMusic();
+
 }
 
 Game::~Game()
 {
 	clearDynamicObjects();
+	stopBackgroundMusic();
 }
 
 window* Game::CreateWind(int x, int y)
@@ -266,7 +273,17 @@ void Game::addMilk(point p)
 
 void Game::generateRandomWolf()
 {
-	if (wolfCount >= 5) return;
+	int maxWolves;
+	if (level == 1)
+		maxWolves = 1;
+	else if (level == 2)
+		maxWolves = 2;
+	else if (level == 3)
+		maxWolves = 3;
+	else
+		maxWolves = 4;
+
+	if (wolfCount >= maxWolves) return;
 	point p = getRandomFieldPoint(60, 60);
 	wolfHealth.push_back(wolfHealthBar);
 	wolfList[wolfCount++] = new Wolf(this, p, 60, 60, "images\\wolf.jpg");
@@ -603,11 +620,9 @@ void Game::go()
 					{
 						waterList[k] = waterList[k + 1];
 					}
-
 					addRandomAnimal(animalList[j]->animalType, animalList[j]->width, animalList[j]->height);
 					currentAnimals++;
 					drawstatusbar();
-
 					waterList[waterCount - 1] = nullptr;
 					waterCount--;
 					foodCount++;
@@ -630,15 +645,16 @@ void Game::go()
 			if (animalList[i] == nullptr)
 				continue;
 
-			animalList[i]->moveStep();
+			if (!paused)
+				animalList[i]->moveStep();
 			animalList[i]->draw();
 
 		}
 		for (int i = 0; i < wolfCount; i++) {
 			if (wolfList[i] == nullptr)
 				continue;
-
-			wolfList[i]->moveStep();
+			if (!paused)
+				wolfList[i]->moveStep();
 			wolfList[i]->draw();
 			for (int j = 0; j < animalCount; j++) {
 				if (animalList[j] == nullptr)
@@ -775,4 +791,31 @@ void Game::setInitialTimerByLevel() {
 
 	
 }
+void Game::adjustProductionTimersAfterPause(long pausedDuration)
+{
+	for (int i = 0; i < animalCount; i++) {
+		if (animalList[i] != nullptr)
+			animalList[i]->lastProductTime += pausedDuration;
+	}
+}
+void Game::playBackgroundMusic()
+{
+	mciSendString("open \"sounds\\bgmusic.wav\" type waveaudio alias bgm", NULL, 0, NULL);
+	mciSendString("play bgm", NULL, 0, NULL);
+}
 
+void Game::pauseBackgroundMusic()
+{
+	mciSendString("pause bgm", NULL, 0, NULL);
+}
+
+void Game::resumeBackgroundMusic()
+{
+	mciSendString("resume bgm", NULL, 0, NULL);
+}
+
+void Game::stopBackgroundMusic()
+{
+	mciSendString("stop bgm", NULL, 0, NULL);
+	mciSendString("close bgm", NULL, 0, NULL);
+}

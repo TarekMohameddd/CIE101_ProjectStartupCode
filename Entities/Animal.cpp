@@ -9,13 +9,27 @@ namespace {
 	{
 		return (rand() % 3) - 1; //{-1, 0, 1}
 	}
-	//int getRandomWolfDirection()
-	//{
-	//	if (level == 1) return (rand() % 3) - 1; //{-1, 0, 1}
-	//	else if (level == 2) return (rand() % 5) - 2; //{-2, 0, 2}
-	//	else if (level == 3) return (rand() % 7) - 3; //{-3, 0, 3}
-	//	else return (rand() % 9) - 4; //{-4, 0, 4}
-	//}
+	int getRandomWolfDirection(const Animal* wolf)
+	{
+		int Speed;
+
+		if (wolf->pGame->level == 1)
+			Speed = 1;
+		else if (wolf->pGame->level == 2)
+			Speed = 2;
+		else if (wolf->pGame->level == 3)
+			Speed = 3;
+		else
+			Speed = 4;
+
+		if (rand() % 2 == 0)
+			return -Speed;
+		else
+			return Speed;
+
+	}
+
+	
 
 	int getRandomVelocityFrames()
 	{
@@ -28,13 +42,14 @@ namespace {
 		animal->curr_vel.y = getRandomDirection();
 		animal->velocityFramesLeft = getRandomVelocityFrames(); 
 	}
+	void resetWolfVelocity(Animal* wolf)
+	{
+		wolf->curr_vel.x = getRandomWolfDirection(wolf);
+		wolf->curr_vel.y = getRandomWolfDirection(wolf);
+		wolf->velocityFramesLeft = getRandomVelocityFrames();
+	}
 
-	//void resetWolfVelocity(Animal* wolf)
-	//{
-	//	wolf->curr_vel.x = getRandomWolfDirection();
-	//	wolf->curr_vel.y = getRandomWolfDirection();
-	//	wolf->velocityFramesLeft = getRandomVelocityFrames(); 
-	//}
+	
 
 	void moveWithinField(Animal* animal)
 	{
@@ -202,31 +217,40 @@ Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img
 
 void Chick::draw() const
 {
-	window* pWind = pGame->getWind();
-	drawChickenShape(pWind, RefPoint, width, height);
-	long remainingMs = productIntervalMs - (CurrentTime() - lastProductTime);
-	if (remainingMs < 0)
-		remainingMs = 0;
-	int remainingSeconds = remainingMs / 1000;
+	
+		window* pWind = pGame->getWind();
+		drawChickenShape(pWind, RefPoint, width, height);
 
-	pWind->SetPen(BLACK, 1);
-	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(RefPoint.x, RefPoint.y - 10, to_string(remainingSeconds));
-}
+		long currentTime = pGame->paused ? pGame->pauseStartTime : CurrentTime();
+		long remainingMs = productIntervalMs - (currentTime - lastProductTime);
+		if (remainingMs < 0)
+			remainingMs = 0;
+		int remainingSeconds = remainingMs / 1000;
+
+		pWind->SetPen(BLACK, 1);
+		pWind->SetFont(20, BOLD, BY_NAME, "Arial");
+		pWind->DrawString(RefPoint.x, RefPoint.y - 10, to_string(remainingSeconds));
+	}
+	
+		
+	
+
 
 void Chick::moveStep()
 {
-	if ((CurrentTime() - lastProductTime) >= productIntervalMs) {
-		pGame->addEgg(curr_pos);
-		lastProductTime = CurrentTime();
+	 
+		if ((CurrentTime() - lastProductTime) >= productIntervalMs) {
+			pGame->addEgg(curr_pos);
+			lastProductTime = CurrentTime();
+		}
+
+		if (velocityFramesLeft <= 0) {
+			resetVelocity(this); //resets velocity after the frames for current velocity are over
+		}
+
+		moveWithinField(this);
 	}
 
-	if (velocityFramesLeft <= 0) {
-		resetVelocity(this); //resets velocity after the frames for current velocity are over
-	}
-
-	moveWithinField(this); 
-}
 
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -239,10 +263,11 @@ void Cow::draw() const
 {
 	window* pWind = pGame->getWind();
 	drawCowShape(pWind, RefPoint, width, height);
-	long remainingMs = productIntervalMs - (CurrentTime() - lastProductTime);
+	long currentTime = pGame->paused ? pGame->pauseStartTime : CurrentTime();
+	long remainingMs = productIntervalMs - (currentTime - lastProductTime);
 	if (remainingMs < 0)
 		remainingMs = 0;
-	int remainingSeconds = (remainingMs + 999) / 1000;
+	int remainingSeconds = remainingMs  / 1000;
 
 	pWind->SetPen(BLACK, 1);
 	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
@@ -267,21 +292,24 @@ void Cow::moveStep()
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
 	animalType = "wolf";
-	resetVelocity(this);
-	//resetWolfVelocity(this);
+	resetWolfVelocity(this);
+	;
+	
 }
 
 void Wolf::draw() const
-{
-	window* pWind = pGame->getWind();
-	drawWolfShape(pWind, RefPoint, width, height);
+{ 
+	if ((!pGame->paused)) {
+		window* pWind = pGame->getWind();
+		drawWolfShape(pWind, RefPoint, width, height);
+	}
 }
 
 void Wolf::moveStep()
 {
 	if (velocityFramesLeft <= 0) {
-		resetVelocity(this);
-		//resetWolfVelocity(this);
+		resetWolfVelocity(this);
+
 	}
 
 	moveWithinField(this);
