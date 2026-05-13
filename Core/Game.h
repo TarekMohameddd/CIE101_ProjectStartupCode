@@ -101,5 +101,7 @@ public:
 	void pauseBackgroundMusic();
 	void resumeBackgroundMusic();
 	void stopBackgroundMusic();
+	void playChickSound();
+	void playCowSound();
 
 };
