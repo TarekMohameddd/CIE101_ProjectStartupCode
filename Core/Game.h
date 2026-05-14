@@ -15,6 +15,7 @@ private:
 	image budgetBackgroundImage;
 	image topbars;
 	image grass;
+	image warehouse;
 	long gameStartTime;
 	long lastWolfSpawnTime;
 	long lastProductionUpdateTime;
