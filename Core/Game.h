@@ -24,6 +24,8 @@ private:
 	std::vector<Cow*> cowAnimals;
 	std::vector<long> cowTimers;
 	std::vector<int> wolfHealth;
+	std::vector<int> waterHealth;
+	std::vector<int> waterWait;
 	Animal* animalList[100] = {};
 	Animal* wolfList[5] = {};
 	int animalCount = 0;
@@ -35,6 +37,7 @@ private:
 	int waterCount = 0;
 	int wolfCount = 0;
 	int wolfHealthBar = 5;
+	int waterHealthBar = 5;
 	void updateOneSecond();
 	void updateAnimalProduction(long deltaMs);
 	void clearDynamicObjects();

@@ -258,7 +258,7 @@ void Game::addMilk(point p)
 
 void Game::generateRandomWolf()
 {
-	if (wolfCount >= 5) return;
+	if (wolfCount >= 5) return; //
 	point p = getRandomFieldPoint(60, 60);
 	wolfHealth.push_back(wolfHealthBar);
 	wolfList[wolfCount++] = new Wolf(this, p, 60, 60, "images\\wolf.jpg");
@@ -363,15 +363,16 @@ void Game::go()
 		if (click != NO_CLICK && y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
 			gameBudgetbar->handleClick(x, y);
 		}
-		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) { //me
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) {
 			if (waterCounter == 1) {
 				point p;
 				p.x = x - (30);
 				p.y = y - (30);
 				
 				waterList[waterCount++] = new Water(this, p, 60, 60);
-
 				waterCounter = 0;
+
+				waterHealth.push_back(waterHealthBar); //
 			}
 			window* ptWind = CreateWind(x, y);
 			if (ptWind != nullptr) {
@@ -511,7 +512,7 @@ void Game::go()
 				ptWind = nullptr;
 			}
 			for (int i = 0; i < eggCount; i++) {
-				if (eggList[i] == nullptr || eggsCount >= 10)
+				if (eggList[i] == nullptr)
 					continue;
 
 				point eP = eggList[i]->RefPoint;
@@ -529,7 +530,7 @@ void Game::go()
 				}
 			}
 			for (int i = 0; i < milkCount; i++) {
-				if (milkList[i] == nullptr || producedMilkCount >= 10)
+				if (milkList[i] == nullptr)
 					continue;
 
 				point mP = milkList[i]->RefPoint;
@@ -583,28 +584,41 @@ void Game::go()
 			if (waterList[i] == nullptr)
 				continue;
 			waterList[i]->draw();
-
+			pWind->SetPen(BLACK, 1);
+			pWind->SetFont(24, BOLD, BY_NAME, "Arial");
+			pWind->DrawString(waterList[i]->RefPoint.x + 25, waterList[i]->RefPoint.y + 20, to_string(waterHealth[i]));
 			for (int j = 0; j < animalCount; j++) {
 				if (animalList[j] == nullptr)
 					continue;
 
 				if (CheckFood(animalList[j], waterList[i]))
 				{
-					delete waterList[i];
-					for (int k = i; k < waterCount - 1; k++) 
-					{
-						waterList[k] = waterList[k + 1];
+					waterHealth[i]--;
+					if (waterHealth[i] <= 0) {
+						delete waterList[i];
+						waterHealth.erase(waterHealth.begin() + i);
+						for (int k = i; k < waterCount - 1; k++)
+						{
+							waterList[k] = waterList[k + 1];
+						}
+
+						drawstatusbar();
+
+						waterList[waterCount - 1] = nullptr;
+						waterCount--;
+						//foodCount++;
+
+						i--;
+						break;
 					}
-
-					addRandomAnimal(animalList[j]->animalType, animalList[j]->width, animalList[j]->height);
-					currentAnimals++;
-					drawstatusbar();
-
-					waterList[waterCount - 1] = nullptr;
-					waterCount--;
-					foodCount++;
-					i--;
-					break;
+					animalList[j]->curr_vel.x *= -1;
+					animalList[j]->curr_vel.y *= -1;
+					pWind->SetPen(GREEN, 1);
+					pWind->SetBrush(GREEN);
+					pWind->DrawRectangle(waterList[i]->RefPoint.x, waterList[i]->RefPoint.y, waterList[i]->RefPoint.x + 60, waterList[i]->RefPoint.y + 60, FILLED);
+					pWind->SetPen(BLACK, 1);
+					pWind->SetFont(24, BOLD, BY_NAME, "Arial");
+					pWind->DrawString(waterList[i]->RefPoint.x + 25, waterList[i]->RefPoint.y + 20, to_string(waterHealth[i]));
 				}
 			}
 
