@@ -56,7 +56,8 @@ public:
 	int level = 1;
 	int score = 0;
 	int currentAnimals = 0;
-	int animalBuyingPrice = 200;
+	int cowBuyingPrice = 200;
+	int chickBuyingPrice = 100;
 	int waterBuyingPrice = 100;
 	int waterCounter = 0;
 	int maxCapcity = 20;

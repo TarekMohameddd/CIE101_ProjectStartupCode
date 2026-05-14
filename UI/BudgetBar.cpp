@@ -25,8 +25,8 @@ ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
 
 void ChickIcon::onClick()
 {	
-	if (!pGame->paused &&count < 15 && pGame->budget >= pGame->animalBuyingPrice) { 
-		pGame->budget -= pGame->animalBuyingPrice; 
+	if (!pGame->paused &&count < 15 && pGame->budget >= pGame->chickBuyingPrice) { 
+		pGame->budget -= pGame->chickBuyingPrice; 
 		pGame->currentAnimals++;
 		pGame->drawbudgetbar();
 		pGame->drawstatusbar();
@@ -48,8 +48,8 @@ CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string
 
 void CowIcon::onClick()
 {
-	if (!pGame->paused &&count < 15 && pGame->budget >= pGame->animalBuyingPrice) {
-		pGame->budget -= pGame->animalBuyingPrice;
+	if (!pGame->paused &&count < 15 && pGame->budget >= pGame->cowBuyingPrice) {
+		pGame->budget -= pGame->cowBuyingPrice;
 		pGame->currentAnimals++;
 		pGame->drawbudgetbar();
 		pGame->drawstatusbar();
