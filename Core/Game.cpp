@@ -21,6 +21,7 @@ Game::Game()
 	budgetBackgroundImage.Open("images\\actionbar.jpeg");
 	topbars.Open("images\\upperb.jpeg");
 	grass.Open("images\\grass.jpeg");
+	warehouse.Open("images\\warehouse.jpeg");
 	pWind->DrawImage(topbars, 0, 0, config.windWidth, config.toolBarHeight);
 	pWind->DrawImage(topbars,0 ,config.toolBarHeight,config.windWidth,config.toolBarHeight*2);
 	clearBudget();
@@ -439,79 +440,80 @@ void Game::go()
 			window* ptWind = CreateWind(x, y);
 			if (ptWind != nullptr) {
 				ptWind->SetBuffering(true);
-				ptWind->SetPen(config.bkGrndColor, 1);
-				ptWind->SetBrush(config.bkGrndColor);
-				ptWind->DrawRectangle(0, 0, ptWind->GetWidth(), ptWind->GetHeight(), FILLED);
+				//ptWind->SetPen(config.bkGrndColor, 1);
+				//ptWind->SetBrush(config.bkGrndColor);
+				//ptWind->DrawRectangle(0, 0, ptWind->GetWidth(), ptWind->GetHeight(), FILLED);
+				//ptWind->ChangeTitle("warehouse");
+
+				//ptWind->SetPen(BLACK, 1);
+				//ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+				//ptWind->DrawString(20, 20, "EGGS");
+				//ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+				//ptWind->DrawString(20, 50, "Price of each Egg 20$");
+				//ptWind->DrawString(20, 70, "Eggs: " + to_string(eggsCount));
+				//ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+				//ptWind->SetPen(BLACK, 1);
+				//ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+				//ptWind->DrawString(20, 220, "MILKS");
+				//ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
+				//ptWind->DrawString(20, 250, "Price of each Milk 20$");
+				//ptWind->DrawString(20, 270, "Milk: " + to_string(producedMilkCount));
+				//ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+
+				//ptWind->SetPen(WHITE, 1);
+				//ptWind->SetBrush(GREEN);
+				//ptWind->DrawRectangle(160, 20, 280, 80, FILLED);
+				//ptWind->SetPen(WHITE, 1);
+				//ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
+				//ptWind->DrawString(185, 35, "SELL");
+
+				//ptWind->SetBrush(GREEN);
+				//ptWind->DrawRectangle(160, 220, 280, 270, FILLED);
+				//ptWind->SetPen(WHITE, 1);
+				//ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
+				//ptWind->DrawString(200, 240, "SELL");
+
+				//ptWind->SetPen(BLACK, 1);
+				//ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
+				//ptWind->DrawString(110, 450, "Press ESCAPE to leave");
+
+				//ptWind->UpdateBuffer();
+				ptWind->DrawImage(warehouse,0,0,ptWind->GetWidth(), ptWind->GetHeight());
 				ptWind->ChangeTitle("warehouse");
 
 				ptWind->SetPen(BLACK, 1);
-				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(20, 20, "EGGS");
-				ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(20, 50, "Price of each Egg 20$");
-				ptWind->DrawString(20, 70, "Eggs: " + to_string(eggsCount));
-				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-				ptWind->SetPen(BLACK, 1);
-				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(20, 220, "MILKS");
-				ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(20, 250, "Price of each Milk 20$");
-				ptWind->DrawString(20, 270, "Milk: " + to_string(producedMilkCount));
-				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-
-				ptWind->SetPen(WHITE, 1);
-				ptWind->SetBrush(GREEN);
-				ptWind->DrawRectangle(160, 20, 280, 80, FILLED);
-				ptWind->SetPen(WHITE, 1);
-				ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(185, 35, "SELL");
-
-				ptWind->SetBrush(GREEN);
-				ptWind->DrawRectangle(160, 220, 280, 270, FILLED);
-				ptWind->SetPen(WHITE, 1);
-				ptWind->SetFont(24, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(200, 240, "SELL");
-
-				ptWind->SetPen(BLACK, 1);
-				ptWind->SetFont(30, BOLD, BY_NAME, "Arial");
-				ptWind->DrawString(110, 450, "Press ESCAPE to leave");
-
+				ptWind->SetFont(35, BOLD, BY_NAME, "Arial");
+				ptWind->DrawString(190, 220, "Eggs:" + to_string(eggsCount));
+				ptWind->DrawString(190, 370, "Milk:" + to_string(producedMilkCount));
 				ptWind->UpdateBuffer();
 
 				bool warehouseOpen = true;
 				while (warehouseOpen) {
 					click2 = ptWind->GetMouseClick(x1, y1);
 
-					if (click2 != NO_CLICK && x1 >= 160 && x1 <= 280 && y1 >= 20 && y1 <= 80) {
+					if (click2 != NO_CLICK && x1 >= 340 && x1 <= 410 && y1 >= 165 && y1 <= 215) {
 						budget += (eggsCount * 20);
 						eggsCount = 0;
-
-						ptWind->SetPen(config.bkGrndColor, 1);
-						ptWind->SetBrush(config.bkGrndColor);
-						ptWind->DrawRectangle(47, 270, 80, 285, FILLED);
-						ptWind->DrawRectangle(53, 65, 80, 90, FILLED);
+						ptWind->DrawImage(warehouse, 0, 0, ptWind->GetWidth(), ptWind->GetHeight());
 						ptWind->SetPen(BLACK, 1);
-						ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
-						ptWind->DrawString(55, 70, to_string(eggsCount));
-						ptWind->DrawString(55, 270, to_string(producedMilkCount));
+						ptWind->SetFont(35, BOLD, BY_NAME, "Arial");
+						ptWind->DrawString(190, 220, "Eggs:" + to_string(eggsCount));
+						ptWind->DrawString(190, 370, "Milk:" + to_string(producedMilkCount));
 						ptWind->UpdateBuffer();
-
 					}
-					if (click2 != NO_CLICK && x1 >= 160 && x1 <= 280 && y1 >= 220 && y1 <= 270) {
+					if (click2 != NO_CLICK && x1 >= 340 && x1 <= 410 && y1 >= 325 && y1 <= 375) {
 						budget += (producedMilkCount * 20);
 						producedMilkCount = 0;
-
-						ptWind->SetPen(config.bkGrndColor, 1);
-						ptWind->SetBrush(config.bkGrndColor);
-						ptWind->DrawRectangle(47, 270, 80, 285, FILLED);
-						ptWind->DrawRectangle(53, 65, 80, 90, FILLED);
+						ptWind->DrawImage(warehouse, 0, 0, ptWind->GetWidth(), ptWind->GetHeight());
 						ptWind->SetPen(BLACK, 1);
-						ptWind->SetFont(15, BOLD, BY_NAME, "Arial");
-						ptWind->DrawString(55, 70, to_string(eggsCount));
-						ptWind->DrawString(55, 270, to_string(producedMilkCount));
+						ptWind->SetFont(35, BOLD, BY_NAME, "Arial");
+						ptWind->DrawString(190, 220, "Eggs:" + to_string(eggsCount));
+						ptWind->DrawString(190, 370, "Milk:" + to_string(producedMilkCount));
 						ptWind->UpdateBuffer();
 					}
-
+					if (click2 != NO_CLICK && x1 >= 110 && x1 <= 410 && y1 >= 400 && y1 <= 500) {
+						warehouseOpen = false;
+					}
 					char Key2;
 					keytype ktype2 = ptWind->GetKeyPress(Key2);
 					if (ktype2 == ESCAPE) {
