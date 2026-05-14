@@ -868,3 +868,14 @@ void Game::stopBackgroundMusic()
 	mciSendString("stop bgm", NULL, 0, NULL);
 	mciSendString("close bgm", NULL, 0, NULL);
 }
+void Game::playCowSound()
+{
+	mciSendString("open \"sounds\\cow.wav\" type waveaudio alias cows", NULL, 0, NULL);
+	mciSendString("play cows", NULL, 0, NULL);
+	
+}
+void Game::playChickSound()
+{
+	mciSendString("open \"sounds\\chick.wav\" type waveaudio alias chicks", NULL, 0, NULL);
+	mciSendString("play chicks", NULL, 0, NULL);
+}
