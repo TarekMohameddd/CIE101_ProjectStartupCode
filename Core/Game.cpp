@@ -139,7 +139,6 @@ void Game::drawbudgetbar() const
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
 	int y = 2 * config.toolBarHeight + 20;
 	pWind->DrawString(10, y, "Budget: $" + to_string(budget));
-	pWind->DrawString(230, y, "Animal: $" + to_string(animalBuyingPrice));
 	pWind->DrawString(380, y, "Water: $" + to_string(waterBuyingPrice));
 }
 clicktype Game::getMouseClick(int& x, int& y) const
@@ -274,7 +273,7 @@ void Game::addRandomAnimal(string animalType, int objectWidth, int objectHeight)
 	}
 }
 void Game::displayprices() {
-	pWind->DrawString(10, config.toolBarHeight + 30,"200$");
+	pWind->DrawString(10, config.toolBarHeight + 30,"100$");
 	pWind->DrawString(2*config.toolbarItemWidth, config.toolBarHeight + 30, "200$");
 	pWind->DrawString(4 * config.toolbarItemWidth, config.toolBarHeight + 30, "100$");
 }
@@ -711,7 +710,6 @@ void Game::restartGame()
 	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
-	animalBuyingPrice = 200;
 	waterBuyingPrice = 50;
 	foodCount = 20;
 	foodAreaVisible = true;
@@ -746,7 +744,6 @@ void Game::resetgame()
 	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
-	animalBuyingPrice = 200;
 	waterBuyingPrice = 50;
 	paused = false;
 	restart = false;
