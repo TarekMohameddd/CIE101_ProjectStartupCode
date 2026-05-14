@@ -456,15 +456,14 @@ void Game::go()
 		if (click != NO_CLICK && y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
 			gameBudgetbar->handleClick(x, y);
 		}
-		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) { //me
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) {
 			if (waterCounter == 1) {
 				point p;
 				p.x = x - (30);
 				p.y = y - (30);
-
 				waterList[waterCount++] = new Water(this, p, 60, 60);
-				waterHealth.push_back(waterHealthBar);
 				waterCounter = 0;
+				waterHealth.push_back(waterHealthBar);
 			}
 			window* ptWind = CreateWind(x, y);
 			if (ptWind != nullptr) {
@@ -644,7 +643,6 @@ void Game::go()
 			pWind->SetPen(BLACK, 1);
 			pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 			pWind->DrawString(waterList[i]->RefPoint.x + 25, waterList[i]->RefPoint.y + 20, to_string(waterHealth[i]));
-
 			for (int j = 0; j < animalCount; j++) {
 				if (animalList[j] == nullptr)
 					continue;
@@ -659,7 +657,7 @@ void Game::go()
 						{
 							waterList[k] = waterList[k + 1];
 						}
-					
+						drawstatusbar();
 						waterList[waterCount - 1] = nullptr;
 						waterCount--;
 						//foodCount++;
@@ -801,6 +799,8 @@ void Game::clearDynamicObjects()
 	chickTimers.clear();
 	cowAnimals.clear();
 	cowTimers.clear();
+	randomNumE.clear();
+	waterHealth.clear();
 
 	for (int i = 0; i < eggCount; i++) {
 		delete eggList[i];
