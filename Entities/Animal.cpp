@@ -242,6 +242,7 @@ void Chick::moveStep()
 		if ((CurrentTime() - lastProductTime) >= productIntervalMs) {
 			pGame->addEgg(curr_pos);
 			lastProductTime = CurrentTime();
+			productIntervalMs = 10000;
 		}
 
 		if (velocityFramesLeft <= 0) {
@@ -280,6 +281,7 @@ void Cow::moveStep()
 	if ((CurrentTime() - lastProductTime) >= productIntervalMs) {
 		pGame->addMilk(curr_pos);
 		lastProductTime = CurrentTime();
+		productIntervalMs = 15000;
 	}
 
 	if (velocityFramesLeft <= 0) {
