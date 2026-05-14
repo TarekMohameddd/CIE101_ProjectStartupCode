@@ -71,11 +71,11 @@ void ExitIcon::onClick()
 Toolbar::Toolbar(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
 	// each icon uses one image from the images folder
-	iconsImages[ICON_RESTART] = "images\\RESTART.jpg";
-	iconsImages[ICON_PAUSE] = "images\\PAUSE.jpg";
-	iconsImages[ICON_RESUME] = "images\\RESUME.jpg";
-	iconsImages[ICON_SAVE] = "images\\SAVE.jpg";
-	iconsImages[ICON_LOAD] = "images\\LOAD.jpg";
+	iconsImages[ICON_RESTART] = "images\\RESTART.jpeg";
+	iconsImages[ICON_PAUSE] = "images\\PAUSE.jpeg";
+	iconsImages[ICON_RESUME] = "images\\PLAY.jpeg";
+	iconsImages[ICON_SAVE] = "images\\SAVE.jpeg";
+	iconsImages[ICON_LOAD] = "images\\LOAD.jpeg";
 	iconsImages[ICON_EXIT] = "images\\toolbar_Exit.jpg";
 	point p;
 	p.x = 0;

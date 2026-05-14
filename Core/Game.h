@@ -12,6 +12,9 @@ private:
 	Toolbar* gameToolbar;
 	Budgetbar* gameBudgetbar;
 	image backgroundImage;
+	image budgetBackgroundImage;
+	image topbars;
+	image grass;
 	long gameStartTime;
 	long lastWolfSpawnTime;
 	long lastProductionUpdateTime;
@@ -44,8 +47,6 @@ private:
 	void setInitialTimerByLevel();
 
 
-	//bool CheckFood(Animal* animal , Water* water) const;
-	void drawWarehouse() const;
 
 public:
 	int budget = 2000;
@@ -75,6 +76,7 @@ public:
 	clicktype getMouseClick(int& x, int& y) const;
 	string getSrting() const;
 	window* CreateWind(int, int, int, int) const;
+	void clearbackground() const;
 	void createToolbar();
 	void drawFoodArea() const;
 	void consumeFood(int amount);
@@ -90,14 +92,12 @@ public:
 	void registerCowPurchased();
 	point getRandomFieldPoint(int objectWidth, int objectHeight) const;
 	void addRandomAnimal(string animalType, int objectWidth, int objectHeight);
-	void addRandomWaterArea();
 	void addEgg(point p);
 	void addMilk(point p);
 	void generateRandomWolf();
 	void updateAutoWolfGeneration();
 	void printBudget(string msg) const;
 	void clearStatusBar() const;
-	void clearbackground() const;
 	void printMessage(string msg) const;
 	void go();
 	window* getWind() const;

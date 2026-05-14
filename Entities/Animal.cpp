@@ -55,7 +55,7 @@ namespace {
 	{
 		const int minX = 0; 
 		const int maxX = config.windWidth - 60; 
-		const int minY = 3 * config.toolBarHeight; 
+		const int minY = 5 * config.toolBarHeight; 
 		const int maxY = config.windHeight - config.statusBarHeight - 60; 
 
 		animal->curr_pos.x += animal->curr_vel.x; 
@@ -372,7 +372,7 @@ Water::Water(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable
 void Water::draw() const
 {
 	window* pWind = pGame->getWind();
-	pWind->SetPen(GREEN, 1);
-	pWind->SetBrush(GREEN);
-	pWind->DrawRectangle(RefPoint.x, RefPoint.y, RefPoint.x + 60, RefPoint.y + 60 , FILLED);
+	image grass;
+	grass.Open("images\\grass.jpeg");
+	pWind->DrawImage(grass, RefPoint.x, RefPoint.y, 60, 60);
 }
