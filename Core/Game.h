@@ -78,6 +78,7 @@ public:
 	string getSrting() const;
 	window* CreateWind(int, int, int, int) const;
 	void clearbackground() const;
+	void displayprices();
 	void createToolbar();
 	void drawFoodArea() const;
 	void consumeFood(int amount);

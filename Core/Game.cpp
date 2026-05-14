@@ -273,7 +273,11 @@ void Game::addRandomAnimal(string animalType, int objectWidth, int objectHeight)
 		cowAnimals.push_back(cow);
 	}
 }
-
+void Game::displayprices() {
+	pWind->DrawString(10, config.toolBarHeight + 30,"200$");
+	pWind->DrawString(2*config.toolbarItemWidth, config.toolBarHeight + 30, "200$");
+	pWind->DrawString(4 * config.toolbarItemWidth, config.toolBarHeight + 30, "100$");
+}
 //void Game::addRandomWaterArea()
 //{
 //	if (waterCount >= 100) return;
@@ -419,6 +423,7 @@ void Game::go()
 		{
 			lastTick = now;
 		}
+		
 		clearbackground();
 		updatetimer();
 		click = getMouseClick(x, y);
@@ -691,7 +696,9 @@ void Game::go()
 			}
 		}
 		drawstatusbar();
+		
 		pWind->UpdateBuffer();
+		displayprices();
 		Pause(30);
 	} while (!isExit);
 }
