@@ -149,7 +149,7 @@ void Game::drawstatusbar() const
 	pWind->DrawString(10, y, "Timer: " + to_string(timer));
 	pWind->DrawString(220, y, "Level: " + to_string(level));
 	pWind->DrawString(330, y, "Goal: " + to_string(goal));
-	pWind->DrawString(440, y, "Current Animals: " + to_string(currentAnimals));
+	pWind->DrawString(440, y, "Current Animals: " + to_string(animalCount));
 	pWind->DrawString(760, y, "Eggs: " + to_string(eggsCount));
 	pWind->DrawString(930, y, "Milk: " + to_string(producedMilkCount));
 }
@@ -315,7 +315,8 @@ void Game::addEgg(point p)
 	point productPoint = p;
 	productPoint.x += 15;
 	productPoint.y += 15;
-
+	srand(static_cast<unsigned int>(time(0)));
+	randomNumE.push_back((rand() % 10) + 1);
 	eggList[eggCount++] = new Egg(this, productPoint, 20, 28);
 }
 
@@ -420,11 +421,13 @@ void Game::go()
 	int x, y, x1, y1;
 	time_t lastTick = time(nullptr);
 	clicktype click, click2;
+	
 
 	pWind->ChangeTitle("- - - - - - - - - - Hog Raiders Farm - - - - - - - - - -");
 
 	do
 	{
+		int randomNumberE = (rand() % 10) + 1; //from 1-10 to show the feature but in general i want it from 1-100
 		long currentMs = CurrentTime();
 		if (!paused) {
 			updateAnimalProduction(currentMs - lastProductionUpdateTime);
@@ -552,13 +555,27 @@ void Game::go()
 				ptWind = nullptr;
 			}
 			for (int i = 0; i < eggCount; i++) {
-				if (eggList[i] == nullptr)
+				if (eggList[i] == nullptr || eggsCount + milkCount >= maxCapcity)
 					continue;
 
 				point eP = eggList[i]->RefPoint;
 				if ((y >= eP.y && y <= eP.y + 28) && ((x >= eP.x && x <= eP.x + 20))) {
-					delete eggList[i];
+					if (randomNumberE == randomNumE[i]) {
+						delete eggList[i];
+						randomNumE.erase(randomNumE.begin() + i);
+						for (int j = i; j < eggCount - 1; j++) {
+							eggList[j] = eggList[j + 1];
+						}
 
+						eggList[eggCount - 1] = nullptr;
+						eggCount--;
+						Chick* chick = new Chick(this, eP, 60, 60, "images\\chick.jpg");
+						animalList[animalCount++] = chick;
+						chickAnimals.push_back(chick);
+						break;
+					}
+					delete eggList[i];
+					randomNumE.erase(randomNumE.begin() + i);
 					for (int j = i; j < eggCount - 1; j++) {
 						eggList[j] = eggList[j + 1];
 					}
@@ -570,7 +587,7 @@ void Game::go()
 				}
 			}
 			for (int i = 0; i < milkCount; i++) {
-				if (milkList[i] == nullptr)
+				if (milkList[i] == nullptr || eggCount + producedMilkCount >= maxCapcity)
 					continue;
 
 				point mP = milkList[i]->RefPoint;

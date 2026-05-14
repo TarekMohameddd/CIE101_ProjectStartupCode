@@ -25,6 +25,7 @@ private:
 	std::vector<long> cowTimers;
 	std::vector<int> wolfHealth;
 	std::vector<int> waterHealth;
+	std::vector<int> randomNumE;
 	Animal* animalList[100] = {};
 	Animal* wolfList[5] = {};
 	int animalCount = 0;
@@ -56,6 +57,7 @@ public:
 	int animalBuyingPrice = 200;
 	int waterBuyingPrice = 100;
 	int waterCounter = 0;
+	int maxCapcity = 20;
 	bool paused = false;
 	bool restart = false;
 	bool isExit = false;
