@@ -67,6 +67,7 @@ public:
 	Game();
 	~Game();
 
+
 	window* CreateWind(int x, int y);
 
 	clicktype getMouseClick(int& x, int& y) const;

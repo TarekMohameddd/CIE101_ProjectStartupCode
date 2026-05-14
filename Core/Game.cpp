@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-
 Game::Game()
 {
 	pWind = CreateWind(config.windWidth, config.windHeight, config.wx, config.wy);
@@ -42,6 +41,7 @@ Game::~Game()
 	clearDynamicObjects();
 	stopBackgroundMusic();
 }
+
 
 void Game::drawFoodArea() const
 {
@@ -328,17 +328,27 @@ void Game::addMilk(point p)
 	milkList[milkCount++] = new Milk(this, productPoint, 24, 32);
 }
 
+static long spawnInterval; // static value for the spawn interval
+
 void Game::generateRandomWolf()
 {
 	int maxWolves;
-	if (level == 1)
+	if (level == 1) {
 		maxWolves = 1;
-	else if (level == 2)
+		spawnInterval = 18000; // 18s
+	}
+	else if (level == 2) {
 		maxWolves = 2;
-	else if (level == 3)
+		spawnInterval = 15000; // 15s
+	}
+	else if (level == 3) {
 		maxWolves = 3;
-	else
+		spawnInterval = 12000; // 12s
+	}
+	else {
 		maxWolves = 4;
+		spawnInterval = 10000; // 10s
+	}
 
 	if (wolfCount >= maxWolves) return;
 	point p = getRandomFieldPoint(60, 60);
@@ -349,8 +359,6 @@ void Game::generateRandomWolf()
 void Game::updateAutoWolfGeneration()
 {
 	if (currentAnimals > 0) {
-		long elapsedMs = CurrentTime() - gameStartTime;
-		long spawnInterval = 8000;
 		if ((CurrentTime() - lastWolfSpawnTime) >= spawnInterval) {
 			generateRandomWolf();
 			lastWolfSpawnTime = CurrentTime();
