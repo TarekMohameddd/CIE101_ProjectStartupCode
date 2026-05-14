@@ -18,7 +18,11 @@ Game::Game()
 	pauseStartTime = 0;
 	backgroundImage.Open("images\\farmback.jpg");
 	pWind->SetBuffering(true);
-
+	budgetBackgroundImage.Open("images\\actionbar.jpeg");
+	topbars.Open("images\\upperb.jpeg");
+	grass.Open("images\\grass.jpeg");
+	pWind->DrawImage(topbars, 0, 0, config.windWidth, config.toolBarHeight);
+	pWind->DrawImage(topbars,0 ,config.toolBarHeight,config.windWidth,config.toolBarHeight*2);
 	clearBudget();
 	createToolbar();
 	createBudgetbar();
@@ -49,23 +53,9 @@ void Game::drawFoodArea() const
 		return;
 
 	window* pWindLocal = getWind();
-	pWindLocal->SetPen(LIGHTGREEN, 1);
-	pWindLocal->SetBrush(LIGHTGREEN);
-	pWindLocal->DrawRectangle(
-		foodAreaTopLeft.x,
-		foodAreaTopLeft.y - 30,
-		foodAreaBottomRight.x,
-		foodAreaBottomRight.y
-	);
+	pWindLocal->DrawImage(grass,foodAreaTopLeft.x,foodAreaTopLeft.y - 30,foodAreaBottomRight.x - foodAreaTopLeft.x,foodAreaBottomRight.y - (foodAreaTopLeft.y - 30));
 
-	pWindLocal->SetPen(DARKGREEN, 3);
-	pWindLocal->SetBrush(LIGHTGREEN);
-	pWindLocal->DrawRectangle(
-		foodAreaTopLeft.x,
-		foodAreaTopLeft.y,
-		foodAreaBottomRight.x,
-		foodAreaBottomRight.y
-	);
+
 
 	string counterText = "Food: " + to_string(foodCount);
 	pWindLocal->SetPen(BLACK, 1);
@@ -101,30 +91,15 @@ void Game::consumeFood(int amount)
 
 window* Game::CreateWind(int x, int y)
 {
-	// x1 = 160 , x2 = 260 , y1 = config.windHeight - config.statusBarHeight - 400 +25 , y2 = config.windHeight - config.statusBarHeight - 400 + 105
 	int left = 160;
-	int top = config.windHeight - config.statusBarHeight - 400 + 25;
+	int top = config.windHeight - config.statusBarHeight - 285;
 	int right = 260;
-	int bottom = config.windHeight - config.statusBarHeight - 400 + 105;
+	int bottom = config.windHeight - config.statusBarHeight - 195;
 	if (y >= top && y <= bottom && x >= left && x <= right) {
 		window* ptWind = CreateWind(500, 500, 10, 10); //can't close this window fom pressing the top right X
 		return ptWind;
 	}
 	return nullptr;
-}
-
-
-void Game::drawWarehouse() const
-{
-	int x = 160;
-	int y = config.windHeight - config.statusBarHeight - 400;
-
-	pWind->SetPen(BLACK, 2);
-	pWind->SetBrush(BROWN);
-	pWind->DrawRectangle(x, y + 25, x + 100, y + 105, FILLED);
-
-	pWind->SetBrush(RED);
-	pWind->DrawTriangle(x - 10, y + 25, x + 50, y, x + 110, y + 25, FILLED);
 }
 
 
@@ -156,17 +131,16 @@ void Game::drawstatusbar() const
 
 void Game::drawbudgetbar() const
 {
-	pWind->SetPen(BLACK, 1);
-	pWind->SetBrush(BLACK);
-	clearBudget();
+	pWind->DrawImage(budgetBackgroundImage, 0, 2 * config.toolBarHeight,
+		config.windWidth, config.toolBarHeight);
+
 	pWind->SetPen(WHITE, 2);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	int y = (2 * config.toolBarHeight + 20);
+	int y = 2 * config.toolBarHeight + 20;
 	pWind->DrawString(10, y, "Budget: $" + to_string(budget));
 	pWind->DrawString(230, y, "Animal: $" + to_string(animalBuyingPrice));
 	pWind->DrawString(380, y, "Water: $" + to_string(waterBuyingPrice));
 }
-
 clicktype Game::getMouseClick(int& x, int& y) const
 {
 	return pWind->GetMouseClick(x, y);
@@ -220,15 +194,13 @@ void Game::createBudgetbar()
 	point budgetbarUpperleft;
 	budgetbarUpperleft.x = 0;
 	budgetbarUpperleft.y = 2 * config.toolBarHeight;
-
 	gameBudgetbar = new Budgetbar(this, budgetbarUpperleft, 0, config.toolBarHeight);
 	gameBudgetbar->draw();
 }
-
 void Game::clearBudget() const
 {
-	pWind->SetPen(BLACK, 1);
-	pWind->SetBrush(BLACK);
+	pWind->SetPen(WHITE, 1);
+	pWind->SetBrush(WHITE);
 	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, 3 * config.toolBarHeight);
 }
 
@@ -243,14 +215,13 @@ void Game::printBudget(string msg) const
 void Game::clearbackground() const
 {
 	pWind->DrawImage(backgroundImage, 0, 3 * config.toolBarHeight,
-		config.windWidth, config.windHeight - (3 * config.toolBarHeight) - config.statusBarHeight);
+		config.windWidth, config.windHeight - (3 * config.toolBarHeight));
 }
 
 void Game::clearStatusBar() const
 {
-	pWind->SetPen(config.statusBarColor, 1);
-	pWind->SetBrush(config.statusBarColor);
-	pWind->DrawRectangle(0, config.windHeight - config.statusBarHeight, config.windWidth, config.windHeight);
+	pWind->DrawImage(budgetBackgroundImage, 0, config.windHeight - config.statusBarHeight, config.windWidth, config.windHeight);
+
 }
 
 void Game::updatetimer()
@@ -275,7 +246,7 @@ point Game::getRandomFieldPoint(int objectWidth, int objectHeight) const
 {
 	static std::mt19937 rng(std::random_device{}());
 	std::uniform_int_distribution<int> xDist(0, config.windWidth - objectWidth);
-	std::uniform_int_distribution<int> yDist(3 * config.toolBarHeight, config.windHeight - config.statusBarHeight - objectHeight - 20);
+	std::uniform_int_distribution<int> yDist(5 * config.toolBarHeight, config.windHeight - config.statusBarHeight - objectHeight - 20);
 
 	point p;
 	p.x = xDist(rng);
@@ -447,7 +418,7 @@ void Game::go()
 		{
 			lastTick = now;
 		}
-
+		clearbackground();
 		updatetimer();
 		click = getMouseClick(x, y);
 		if (click != NO_CLICK && y >= 0 && y < config.toolBarHeight) {
@@ -632,9 +603,6 @@ void Game::go()
 		}
 
 		updateAutoWolfGeneration();
-		clearbackground();
-		drawWarehouse();
-		//me
 
 		for (int i = 0; i < waterCount; i++) {
 			if (waterList[i] == nullptr)
@@ -720,7 +688,7 @@ void Game::go()
 				}
 			}
 		}
-
+		drawstatusbar();
 		pWind->UpdateBuffer();
 		Pause(30);
 	} while (!isExit);

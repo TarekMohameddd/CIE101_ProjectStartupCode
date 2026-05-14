@@ -1222,6 +1222,8 @@ void window::DrawImage(const image *imgThis, const int iX, const int iY, const i
 	  if((imgThis->itType == JPEG) || (imgThis->itType == SCREEN)) {
 
 		if((iWidth != -1) && (iHeight != -1)) {
+			SetStretchBltMode(dcActive, HALFTONE);
+			SetBrushOrgEx(dcActive, 0, 0, NULL);
 			if(StretchDIBits(dcActive, iX, iY, iWidth, iHeight, 0, 0, imgThis->usWidth, imgThis->usHeight, imgThis->ucpImageData, imgThis->bmiImage, DIB_RGB_COLORS, SRCCOPY) == GDI_ERROR) {
  	            cout << "Fatal Error: Failed to StretchDIBits in DrawImage!" << endl;
 			}

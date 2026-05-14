@@ -78,9 +78,9 @@ void WaterIcon::onClick()
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
-	iconsImages[ICON_CHICK] = "images\\chick.jpg";
-	iconsImages[ICON_COW] = "images\\cow.jpg";
-	iconsImages[ICON_WATER] = "images\\water.jpg";
+	iconsImages[ICON_CHICK] = "images\\chick.jpeg";
+	iconsImages[ICON_COW] = "images\\cow.jpeg";
+	iconsImages[ICON_WATER] = "images\\water.jpeg";
 
 	point p;
 	p.x = 0;
@@ -105,9 +105,6 @@ Budgetbar::~Budgetbar()
 void Budgetbar::draw() const
 {
 	window* pWind = pGame->getWind();
-	pWind->SetPen(BLACK, 1);
-	pWind->SetBrush(BLACK);
-	pWind->DrawRectangle(0, config.toolBarHeight, pWind->GetWidth(), 2 * config.toolBarHeight);
 
 	for (int i = 0; i < ANIMAL_COUNT; i++)
 		iconsList[i]->draw();
