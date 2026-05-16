@@ -30,6 +30,7 @@ private:
 	std::vector<int> wolfHealth;
 	std::vector<int> waterHealth;
 	std::vector<int> randomNumE;
+	std::vector<int> animalHealth;
 	Animal* animalList[100] = {};
 	Animal* wolfList[5] = {};
 	int animalCount = 0;
@@ -42,6 +43,7 @@ private:
 	int wolfCount = 0;
 	int wolfHealthBar = 5;
 	int waterHealthBar = 5;
+	int animalsHealthBar = 1000;
 	void updateOneSecond();
 	void updateAnimalProduction(long deltaMs);
 	void clearDynamicObjects();
@@ -50,6 +52,7 @@ private:
 
 
 public:
+	
 	int budget = 2000;
 	int timer = 120;
 	int goal = 5;
@@ -83,7 +86,7 @@ public:
 	void createToolbar();
 	void drawFoodArea() const;
 	void consumeFood(int amount);
-	bool CheckFood(Animal* animal, Water* water) const;
+	bool CheckFood(Animal* animal, Water* water , int animalIndex) const;
 	void createBudgetbar();
 	void clearBudget() const;
 	void drawstatusbar() const;

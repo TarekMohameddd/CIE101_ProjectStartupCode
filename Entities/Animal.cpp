@@ -236,10 +236,10 @@ void Chick::draw() const
 	
 
 
-void Chick::moveStep()
+void Chick::moveStep(bool condition)
 {
 	 
-		if ((CurrentTime() - lastProductTime) >= productIntervalMs) {
+		if ((CurrentTime() - lastProductTime) >= productIntervalMs && condition) {
 			pGame->addEgg(curr_pos);
 			lastProductTime = CurrentTime();
 			productIntervalMs = 10000;
@@ -276,9 +276,9 @@ void Cow::draw() const
 }
 
 
-void Cow::moveStep()
+void Cow::moveStep(bool condition)
 {
-	if ((CurrentTime() - lastProductTime) >= productIntervalMs) {
+	if ((CurrentTime() - lastProductTime) >= productIntervalMs && condition) {
 		pGame->addMilk(curr_pos);
 		lastProductTime = CurrentTime();
 		productIntervalMs = 15000;
@@ -307,7 +307,7 @@ void Wolf::draw() const
 	}
 }
 
-void Wolf::moveStep()
+void Wolf::moveStep(bool condition)
 {
 	if (velocityFramesLeft <= 0) {
 		resetWolfVelocity(this);

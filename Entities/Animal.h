@@ -16,7 +16,7 @@ public:
 	string animalType;
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
-	virtual void moveStep() = 0;
+	virtual void moveStep(bool condition = true) = 0;
 	
 };
 
@@ -25,7 +25,7 @@ class Chick : public Animal
 public:
 	Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
-	virtual void moveStep();
+	virtual void moveStep(bool condition = true) override;
 };
 
 class Cow : public Animal
@@ -33,7 +33,7 @@ class Cow : public Animal
 public:
 	Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
-	virtual void moveStep();
+	virtual void moveStep(bool condition = true) override;
 };
 
 class Wolf : public Animal
@@ -41,7 +41,7 @@ class Wolf : public Animal
 public:
 	Wolf(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
-	virtual void moveStep();
+	virtual void moveStep(bool condition = true) override;
 };
 
 class Egg : public Drawable

@@ -104,7 +104,7 @@ window* Game::CreateWind(int x, int y)
 }
 
 
-bool Game::CheckFood(Animal* animal, Water* water) const
+bool Game::CheckFood(Animal* animal, Water* water , int animalIndex) const
 {
 	if (animal == nullptr || water == nullptr)
 		return false;
@@ -112,7 +112,8 @@ bool Game::CheckFood(Animal* animal, Water* water) const
 	if (animal->RefPoint.x <= (water->RefPoint.x + water->width) &&
 		animal->RefPoint.x + animal->width >= water->RefPoint.x &&
 		animal->RefPoint.y <= (water->RefPoint.y + water->height) &&
-		animal->RefPoint.y + animal->height >= water->RefPoint.y) return true;
+		animal->RefPoint.y + animal->height >= water->RefPoint.y &&
+		animalHealth[animalIndex] < 500) return true;
 	else return false;
 }
 
@@ -258,18 +259,23 @@ void Game::addRandomAnimal(string animalType, int objectWidth, int objectHeight)
 {
 	if (animalCount >= 100) return;
 
+	if (animalCount == 0)
+		lastWolfSpawnTime = CurrentTime();
+
 	point p = getRandomFieldPoint(objectWidth, objectHeight); // get random point for the animal within the field boundaries
 
 	if (animalType == "chick") {
 		Chick* chick = new Chick(this, p, objectWidth, objectHeight, "images\\chick.jpg");//create a new animal object with the random point
 		animalList[animalCount++] = chick;//add animal to the animal list and chickAnimals vector (is there to check number of animals since the wolf is in the same family)
 		chickAnimals.push_back(chick);
+		animalHealth.push_back(animalsHealthBar);
 
 	}
 	else if (animalType == "cow") {
 		Cow* cow = new Cow(this, p, objectWidth, objectHeight, "images\\cow.jpg");
 		animalList[animalCount++] = cow;
 		cowAnimals.push_back(cow);
+		animalHealth.push_back(animalsHealthBar);
 	}
 }
 void Game::displayprices() {
@@ -304,7 +310,7 @@ void Game::addMilk(point p)
 	milkList[milkCount++] = new Milk(this, productPoint, 24, 32);
 }
 
-static long spawnInterval; // static value for the spawn interval
+static long spawnInterval = 18000; // static value for the spawn interval
 
 void Game::generateRandomWolf()
 {
@@ -542,11 +548,17 @@ void Game::go()
 						for (int j = i; j < eggCount - 1; j++) {
 							eggList[j] = eggList[j + 1];
 						}
-
+						point newP = eP;
+						newP.x - 75;
+						newP.y - 75;
 						eggList[eggCount - 1] = nullptr;
 						eggCount--;
-						Chick* chick = new Chick(this, eP, 60, 60, "images\\chick.jpg");
+						Chick* chick = new Chick(this, newP, 60, 60, "images\\chick.jpg");
+						if (animalCount == 0)
+							lastWolfSpawnTime = CurrentTime();
 						animalList[animalCount++] = chick;
+						animalHealth.push_back(animalsHealthBar);
+						currentAnimals++;
 						chickAnimals.push_back(chick);
 						break;
 					}
@@ -621,7 +633,7 @@ void Game::go()
 				if (animalList[j] == nullptr)
 					continue;
 
-				if (CheckFood(animalList[j], waterList[i]))
+				if (CheckFood(animalList[j], waterList[i] , j))
 				{
 					waterHealth[i]--;
 					if (waterHealth[i] <= 0) {
@@ -641,8 +653,7 @@ void Game::go()
 					}
 					drawstatusbar();
 					animalList[j]->productIntervalMs += 5000;
-					animalList[j]->curr_vel.x *= -1;
-					animalList[j]->curr_vel.y *= -1;
+					animalHealth[j] = 1000;
 					pWind->SetPen(GREEN, 1);
 					pWind->SetBrush(GREEN);
 					pWind->DrawRectangle(waterList[i]->RefPoint.x, waterList[i]->RefPoint.y, waterList[i]->RefPoint.x + 60, waterList[i]->RefPoint.y + 60, FILLED);
@@ -666,9 +677,38 @@ void Game::go()
 			if (animalList[i] == nullptr)
 				continue;
 
-			if (!paused)
-				animalList[i]->moveStep();
+			if (animalHealth[i] <= 0) {
+				delete animalList[i];
+				animalHealth.erase(animalHealth.begin() + i);
+
+				for (int j = i; j < animalCount - 1; j++) {
+					animalList[j] = animalList[j + 1];
+				}
+
+				animalList[animalCount - 1] = nullptr;
+				animalCount--;
+				if (currentAnimals > 0)
+					currentAnimals--;
+				i--;
+				continue;
+			}
+
+			if (!paused) {
+				animalHealth[i]--;
+				animalList[i]->moveStep(animalHealth[i] >= 500);
+			}
+				
+				
 			animalList[i]->draw();
+			pWind->SetPen(BLACK, 1);
+
+			if (animalHealth[i] > 500) 
+				pWind->SetBrush(GREEN);
+			else if (animalHealth[i] > 200)
+				pWind->SetBrush(YELLOW);
+			else
+				pWind->SetBrush(RED);
+			pWind->DrawCircle(animalList[i]->RefPoint.x +(animalList[i]->width + 10), (animalList[i]->RefPoint.y + 10), 8, FILLED);
 
 		}
 		for (int i = 0; i < wolfCount; i++) {
@@ -683,6 +723,7 @@ void Game::go()
 
 				if (isCollide(wolfList[i], animalList[j])) {
 					delete animalList[j];
+					animalHealth.erase(animalHealth.begin() + j);
 					for (int k = j; k < animalCount - 1; k++) {
 						animalList[k] = animalList[k + 1];
 					}
