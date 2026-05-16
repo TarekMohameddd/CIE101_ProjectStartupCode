@@ -41,14 +41,14 @@ SaveIcon::SaveIcon(Game* r_pGame, point r_point, int r_width, int r_height, stri
 
 void SaveIcon::onClick()
 {
-	pGame->printMessage("Save clicked");
+	pGame->saveGame();
 }
 LoadGameIcon::LoadGameIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: ToolbarIcon(r_pGame, r_point, r_width, r_height, img_path) {
 }
 void LoadGameIcon::onClick()
 {
-	pGame->printMessage("Loaded");
+	pGame->loadGame();
 }
 void RestartIcon::onClick()
 {

@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <random>
 #include <utility>
+#include <string>
 #include "../Config/GameConfig.h"
 #include "../CMUgraphicsLib/auxil.h"
 #include <windows.h>
@@ -45,6 +46,50 @@ Game::~Game()
 {
 	clearDynamicObjects();
 	stopBackgroundMusic();
+}
+
+void Game::drawWarehouse() const
+{
+}
+
+bool Game::isWarehouseClick(int x, int y) const
+{
+	const int left = 160;
+	const int top = config.windHeight - config.statusBarHeight - 285;
+	const int right = left + 100;
+	const int bottom = top + 90;
+	return x >= left && x <= right && y >= top && y <= bottom;
+}
+
+void Game::restoreAnimalFromSave(const string& animalType, int x, int y, long remainingMs)
+{
+	if (animalCount >= 100)
+		return;
+
+	point p{ x, y };
+	Animal* animal = nullptr;
+	if (animalType == "CHICK") {
+		animal = new Chick(this, p, 60, 60, "images\\chick.jpg");
+		chickAnimals.push_back(static_cast<Chick*>(animal));
+		chickTimers.push_back(0);
+	}
+	else if (animalType == "COW") {
+		animal = new Cow(this, p, 60, 60, "images\\cow.jpg");
+		cowAnimals.push_back(static_cast<Cow*>(animal));
+		cowTimers.push_back(0);
+	}
+
+	if (animal == nullptr)
+		return;
+
+	animal->lastProductTime = CurrentTime() - animal->productIntervalMs + remainingMs;
+	if (animal->lastProductTime > CurrentTime()) {
+		animal->lastProductTime = CurrentTime();
+	}
+
+	animalList[animalCount++] = animal;
+	animalHealth.push_back(animalsHealthBar);
+	currentAnimals = animalCount;
 }
 
 
@@ -92,11 +137,7 @@ void Game::consumeFood(int amount)
 
 window* Game::CreateWind(int x, int y)
 {
-	int left = 160;
-	int top = config.windHeight - config.statusBarHeight - 285;
-	int right = 260;
-	int bottom = config.windHeight - config.statusBarHeight - 195;
-	if (y >= top && y <= bottom && x >= left && x <= right) {
+	if (isWarehouseClick(x, y)) {
 		window* ptWind = CreateWind(500, 500, 10, 10); //can't close this window fom pressing the top right X
 		return ptWind;
 	}
@@ -126,9 +167,14 @@ void Game::drawstatusbar() const
 	pWind->DrawString(10, y, "Timer: " + to_string(timer));
 	pWind->DrawString(220, y, "Level: " + to_string(level));
 	pWind->DrawString(330, y, "Goal: " + to_string(goal));
-	pWind->DrawString(440, y, "Current Animals: " + to_string(animalCount));
+	pWind->DrawString(440, y, "Current Animals: " + to_string(currentAnimals));
 	pWind->DrawString(760, y, "Eggs: " + to_string(eggsCount));
 	pWind->DrawString(930, y, "Milk: " + to_string(producedMilkCount));
+	if (timer == 0) {
+		pWind->SetPen(RED, 1);
+		pWind->SetFont(24, BOLD, BY_NAME, "Arial");
+		pWind->DrawString(500, y, "Game Over");
+	}
 }
 
 void Game::drawbudgetbar() const
@@ -140,7 +186,21 @@ void Game::drawbudgetbar() const
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
 	int y = 2 * config.toolBarHeight + 20;
 	pWind->DrawString(10, y, "Budget: $" + to_string(budget));
-	pWind->DrawString(380, y, "Water: $" + to_string(waterBuyingPrice));
+	pWind->DrawString(230, y, "Chick: $" + to_string(chickBuyingPrice));
+	pWind->DrawString(380, y, "Cow: $" + to_string(cowBuyingPrice));
+	pWind->DrawString(520, y, "Water: $" + to_string(waterBuyingPrice));
+	if (!hasAutoSeller) {
+		pWind->DrawString(660, y, "Auto-Seller: $300");
+	}
+	else {
+		pWind->DrawString(660, y, "Auto-Seller: ACTIVE");
+	}
+	if (!hasAutoCollector) {
+		pWind->DrawString(900, y, "Auto-Collector: $300");
+	}
+	else {
+		pWind->DrawString(900, y, "Auto-Collector: ACTIVE");
+	}
 }
 clicktype Game::getMouseClick(int& x, int& y) const
 {
@@ -231,14 +291,19 @@ void Game::updatetimer()
 	{
 		timer--;
 
-		if (timer == 0)
+		if (timer <= 0)
 		{
-			level++;
-			setInitialTimerByLevel();
+			timer = 0;
+			paused = true;
+			printMessage("Game Over");
 		}
 
 		drawbudgetbar();
 		drawstatusbar();
+	}
+
+	if (timer == 0) {
+		printMessage("Game Over");
 	}
 }
 
@@ -387,11 +452,19 @@ bool isCollide(Animal* wolf, Animal* animal) {
 
 void Game::updateOneSecond()
 {
-	int animalsCount = static_cast<int>(chickAnimals.size()) + static_cast<int>(cowAnimals.size());
-	if (animalsCount <= 0)
-		return;
+	bool levelChanged = false;
+
+	if (budget >= goal) {
+		level++;
+		goal += 250;
+		setInitialTimerByLevel();
+		levelChanged = true;
+	}
 
 	drawstatusbar();
+	if (levelChanged) {
+		printMessage("Level Up");
+	}
 }
 
 void Game::updateAnimalProduction(long deltaMs)
@@ -420,6 +493,171 @@ void Game::printMessage(string msg) const
 window* Game::getWind() const
 {
 	return pWind;
+}
+
+void Game::saveGame()
+{
+	std::ofstream outFile("saved_game.txt");
+	if (!outFile.is_open()) {
+		printMessage("Error: Could not save game.");
+		return;
+	}
+
+	outFile << "LEVEL " << level << "\n";
+	outFile << "BUDGET " << budget << "\n";
+	outFile << "TIMER " << timer << "\n";
+	outFile << "GOAL " << goal << "\n";
+	outFile << "ANIMALS " << animalCount << "\n";
+	for (int i = 0; i < animalCount; i++) {
+		if (animalList[i] == nullptr)
+			continue;
+
+		long remainingMs = animalList[i]->productIntervalMs - (CurrentTime() - animalList[i]->lastProductTime);
+		if (remainingMs < 0) {
+			remainingMs = 0;
+		}
+
+		string label = animalList[i]->animalType == "cow" ? "COW" : "CHICK";
+		outFile << label << " "
+			<< animalList[i]->RefPoint.x << " "
+			<< animalList[i]->RefPoint.y << " "
+			<< remainingMs << "\n";
+	}
+
+	outFile << "WOLVES " << wolfCount << "\n";
+	for (int i = 0; i < wolfCount; i++) {
+		if (wolfList[i] == nullptr)
+			continue;
+		outFile << "WOLF "
+			<< wolfList[i]->RefPoint.x << " "
+			<< wolfList[i]->RefPoint.y << " "
+			<< wolfHealth[i] << "\n";
+	}
+
+	outFile << "FOODAREAS " << waterCount << "\n";
+	for (int i = 0; i < waterCount; i++) {
+		if (waterList[i] == nullptr)
+			continue;
+		outFile << "FOOD "
+			<< waterList[i]->RefPoint.x << " "
+			<< waterList[i]->RefPoint.y << " "
+			<< waterHealth[i] << "\n";
+	}
+
+	outFile << "EGGITEMS " << eggCount << "\n";
+	for (int i = 0; i < eggCount; i++) {
+		if (eggList[i] == nullptr)
+			continue;
+		outFile << "EGG "
+			<< eggList[i]->RefPoint.x << " "
+			<< eggList[i]->RefPoint.y << " "
+			<< randomNumE[i] << "\n";
+	}
+
+	outFile << "MILKITEMS " << milkCount << "\n";
+	for (int i = 0; i < milkCount; i++) {
+		if (milkList[i] == nullptr)
+			continue;
+		outFile << "MILK "
+			<< milkList[i]->RefPoint.x << " "
+			<< milkList[i]->RefPoint.y << "\n";
+	}
+
+	outFile << "WAREHOUSE\n";
+	outFile << "EGGS " << eggsCount << "\n";
+	outFile << "MILK " << producedMilkCount << "\n";
+	outFile << "AUTOSELLER " << hasAutoSeller << "\n";
+	outFile << "AUTOCOLLECTOR " << hasAutoCollector << "\n";
+	outFile.close();
+	printMessage("Game Saved Successfully!");
+}
+
+void Game::loadGame()
+{
+	std::ifstream inFile("saved_game.txt");
+	if (!inFile.is_open()) {
+		printMessage("Error: No saved game found.");
+		return;
+	}
+
+	clearDynamicObjects();
+	currentAnimals = 0;
+	paused = false;
+
+	string label;
+	int count = 0;
+	inFile >> label >> level;
+	inFile >> label >> budget;
+	inFile >> label >> timer;
+	inFile >> label >> goal;
+
+	inFile >> label >> count;
+	for (int i = 0; i < count; i++) {
+		string animalType;
+		int x = 0, y = 0;
+		long remainingMs = 0;
+		inFile >> animalType >> x >> y >> remainingMs;
+		restoreAnimalFromSave(animalType, x, y, remainingMs);
+	}
+
+	inFile >> label >> count;
+	for (int i = 0; i < count; i++) {
+		string wolfLabel;
+		int x = 0, y = 0, health = wolfHealthBar;
+		inFile >> wolfLabel >> x >> y >> health;
+		point p{ x, y };
+		wolfList[wolfCount++] = new Wolf(this, p, 60, 60, "images\\wolf.jpg");
+		wolfHealth.push_back(health);
+	}
+
+	inFile >> label >> count;
+	for (int i = 0; i < count; i++) {
+		string foodLabel;
+		int x = 0, y = 0, health = waterHealthBar;
+		inFile >> foodLabel >> x >> y >> health;
+		point p{ x, y };
+		waterList[waterCount++] = new Water(this, p, 60, 60);
+		waterHealth.push_back(health);
+	}
+
+	inFile >> label >> count;
+	for (int i = 0; i < count; i++) {
+		string eggLabel;
+		int x = 0, y = 0, hatchRoll = 1;
+		inFile >> eggLabel >> x >> y >> hatchRoll;
+		eggList[eggCount++] = new Egg(this, { x, y }, 20, 28);
+		randomNumE.push_back(hatchRoll);
+	}
+
+	inFile >> label >> count;
+	for (int i = 0; i < count; i++) {
+		string milkLabel;
+		int x = 0, y = 0;
+		inFile >> milkLabel >> x >> y;
+		milkList[milkCount++] = new Milk(this, { x, y }, 24, 32);
+	}
+
+	inFile >> label;
+	inFile >> label >> eggsCount;
+	inFile >> label >> producedMilkCount;
+	inFile >> label >> hasAutoSeller;
+	inFile >> label >> hasAutoCollector;
+	inFile.close();
+
+	lastWolfSpawnTime = CurrentTime();
+	lastProductionUpdateTime = CurrentTime();
+	gameBudgetbar->resetAnimals();
+	ChickIcon* chickIcon = dynamic_cast<ChickIcon*>(gameBudgetbar->iconsList[ICON_CHICK]);
+	CowIcon* cowIcon = dynamic_cast<CowIcon*>(gameBudgetbar->iconsList[ICON_COW]);
+	if (chickIcon != nullptr) {
+		chickIcon->count = static_cast<int>(chickAnimals.size());
+	}
+	if (cowIcon != nullptr) {
+		cowIcon->count = static_cast<int>(cowAnimals.size());
+	}
+	drawbudgetbar();
+	drawstatusbar();
+	printMessage("Game Loaded Successfully!");
 }
 
 void Game::go()
@@ -455,6 +693,7 @@ void Game::go()
 		}
 		
 		clearbackground();
+		drawWarehouse();
 		updatetimer();
 		click = getMouseClick(x, y);
 		if (click != NO_CLICK && y >= 0 && y < config.toolBarHeight) {
@@ -462,6 +701,28 @@ void Game::go()
 		}
 		if (click != NO_CLICK && y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
 			gameBudgetbar->handleClick(x, y);
+		}
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight && y < 3 * config.toolBarHeight && x >= 660 && x < 900) {
+			if (!hasAutoSeller && budget >= 300) {
+				budget -= 300;
+				hasAutoSeller = true;
+				drawbudgetbar();
+				printMessage("Successfully purchased Auto-Seller tool!");
+			}
+			else if (!hasAutoSeller && budget < 300) {
+				printMessage("Insufficient Budget to buy Auto-Seller! Needs $300.");
+			}
+		}
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight && y < 3 * config.toolBarHeight && x >= 900) {
+			if (!hasAutoCollector && budget >= 300) {
+				budget -= 300;
+				hasAutoCollector = true;
+				drawbudgetbar();
+				printMessage("Successfully purchased Auto-Collector tool!");
+			}
+			else if (!hasAutoCollector && budget < 300) {
+				printMessage("Insufficient Budget to buy Auto-Collector! Needs $300.");
+			}
 		}
 		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) {
 			if (waterCounter == 1) {
@@ -698,6 +959,49 @@ void Game::go()
 				milkList[i]->draw();
 		}
 
+		if (hasAutoCollector) {
+			while (eggCount > 0) {
+				delete eggList[0];
+				for (int j = 0; j < eggCount - 1; j++) {
+					eggList[j] = eggList[j + 1];
+				}
+				eggList[eggCount - 1] = nullptr;
+				if (!randomNumE.empty()) {
+					randomNumE.erase(randomNumE.begin());
+				}
+				eggCount--;
+				eggsCount++;
+				drawstatusbar();
+			}
+
+			while (milkCount > 0) {
+				delete milkList[0];
+				for (int j = 0; j < milkCount - 1; j++) {
+					milkList[j] = milkList[j + 1];
+				}
+				milkList[milkCount - 1] = nullptr;
+				milkCount--;
+				producedMilkCount++;
+				drawstatusbar();
+			}
+		}
+
+		if (hasAutoSeller && eggsCount >= 10) {
+			budget += (10 * 20);
+			eggsCount -= 10;
+			printMessage("Auto-Seller sold 10 Eggs for $200!");
+			drawbudgetbar();
+			drawstatusbar();
+		}
+
+		if (hasAutoSeller && producedMilkCount >= 10) {
+			budget += (10 * 20);
+			producedMilkCount -= 10;
+			printMessage("Auto-Seller sold 10 Milk for $200!");
+			drawbudgetbar();
+			drawstatusbar();
+		}
+
 		for (int i = 0; i < animalCount; i++) {
 			if (animalList[i] == nullptr)
 				continue;
@@ -770,13 +1074,13 @@ void Game::go()
 void Game::restartGame()
 {
 	clearDynamicObjects();
-	budget = 2000;
-	goal = 5;
+	budget = 500;
+	goal = 750;
 	level = 1;
 	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
-	waterBuyingPrice = 50;
+	waterBuyingPrice = 20;
 	foodCount = 20;
 	foodAreaVisible = true;
 	eggsCount = 0;
@@ -788,6 +1092,8 @@ void Game::restartGame()
 	lastProductionUpdateTime = CurrentTime();
 	paused = false;
 	restart = false;
+	hasAutoSeller = false;
+	hasAutoCollector = false;
 
 	gameBudgetbar->resetAnimals();
 
@@ -804,15 +1110,17 @@ void Game::resetgame()
 {
 	clearDynamicObjects();
 	clearbackground();
-	budget = 2000;
-	goal = 5;
+	budget = 500;
+	goal = 750;
 	level = 1;
 	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
-	waterBuyingPrice = 50;
+	waterBuyingPrice = 20;
 	paused = false;
 	restart = false;
+	hasAutoSeller = false;
+	hasAutoCollector = false;
 	foodCount = 20;
 	foodAreaVisible = true;
 	eggsCount = 0;
@@ -841,6 +1149,7 @@ void Game::clearDynamicObjects()
 	cowTimers.clear();
 	randomNumE.clear();
 	waterHealth.clear();
+	animalHealth.clear();
 
 	for (int i = 0; i < eggCount; i++) {
 		delete eggList[i];
@@ -859,6 +1168,13 @@ void Game::clearDynamicObjects()
 		waterList[i] = nullptr;
 	}
 	waterCount = 0;
+
+	for (int i = 0; i < wolfCount; i++) {
+		delete wolfList[i];
+		wolfList[i] = nullptr;
+	}
+	wolfCount = 0;
+	wolfHealth.clear();
 }
 void Game::setInitialTimerByLevel() {
 	if (level == 1) {
