@@ -196,6 +196,7 @@ void Game::drawbudgetbar() const
 		pWind->DrawString(660, y, "Auto-Seller: ACTIVE");
 	}
 	if (!hasAutoCollector) {
+		pWind->DrawString(900, y, "Auto-Collector: $300");
 	}
 	else {
 		pWind->DrawString(900, y, "Auto-Collector: ACTIVE");
