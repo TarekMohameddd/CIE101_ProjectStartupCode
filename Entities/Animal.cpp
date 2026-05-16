@@ -51,7 +51,7 @@ namespace {
 
 	
 
-	void moveWithinField(Animal* animal)
+	void moveWithinField(Animal* animal , int maxSpeed = 1)
 	{
 		const int minX = 0; 
 		const int maxX = config.windWidth - 60; 
@@ -63,13 +63,13 @@ namespace {
 		animal->velocityFramesLeft--; 
 
 		//boundary checking and bouncing back if the animal hits the window borders
-		if ((animal->curr_pos.x < minX && animal->curr_vel.x == -1) || (animal->curr_pos.x > maxX && animal->curr_vel.x == 1)) {
+		if ((animal->curr_pos.x < minX && animal->curr_vel.x == -maxSpeed) || (animal->curr_pos.x > maxX && animal->curr_vel.x == maxSpeed)) {
 			animal->curr_vel.x = -animal->curr_vel.x;
 			if (animal->curr_pos.x < minX) animal->curr_pos.x = minX;
 			if (animal->curr_pos.x > maxX) animal->curr_pos.x = maxX;
 		}
 
-		if ((animal->curr_pos.y < minY && animal->curr_vel.y == -1) || (animal->curr_pos.y > maxY - 20 && animal->curr_vel.y == 1)) {
+		if ((animal->curr_pos.y < minY && animal->curr_vel.y == -maxSpeed) || (animal->curr_pos.y > maxY - 20 && animal->curr_vel.y == maxSpeed)) {
 			animal->curr_vel.y = -animal->curr_vel.y;
 			if (animal->curr_pos.y < minY) animal->curr_pos.y = minY;
 			if (animal->curr_pos.y > maxY) animal->curr_pos.y = maxY;
@@ -295,7 +295,6 @@ Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, string img_p
 {
 	animalType = "wolf";
 	resetWolfVelocity(this);
-	;
 	
 }
 
@@ -313,8 +312,17 @@ void Wolf::moveStep(bool condition)
 		resetWolfVelocity(this);
 
 	}
+	int Speed;
 
-	moveWithinField(this);
+	if (this->pGame->level == 1)
+		Speed = 1;
+	else if (this->pGame->level == 2)
+		Speed = 2;
+	else if (this->pGame->level == 3)
+		Speed = 3;
+	else
+		Speed = 4;
+	moveWithinField(this , Speed);
 }
 
 Egg::Egg(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
