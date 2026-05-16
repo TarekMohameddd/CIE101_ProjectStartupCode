@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <fstream>
 #include "../CMUgraphicsLib/CMUgraphics.h"
 #include "../UI/Toolbar.h"
 #include "../UI/BudgetBar.h"
@@ -48,14 +49,17 @@ private:
 	void updateAnimalProduction(long deltaMs);
 	void clearDynamicObjects();
 	void setInitialTimerByLevel();
+	void drawWarehouse() const;
+	bool isWarehouseClick(int x, int y) const;
+	void restoreAnimalFromSave(const string& animalType, int x, int y, long remainingMs);
 
 
 
 public:
 	
-	int budget = 2000;
+	int budget = 1000;
 	int timer = 120;
-	int goal = 5;
+	int goal = 1500;
 	int level = 1;
 	int score = 0;
 	int currentAnimals = 0;
@@ -67,6 +71,7 @@ public:
 	bool paused = false;
 	bool restart = false;
 	bool isExit = false;
+	bool hasAutoSeller = false;
 	int eggsCount = 0;
 	int producedMilkCount = 0;
 	int windEgg = 0;
@@ -107,6 +112,8 @@ public:
 	void printMessage(string msg) const;
 	void go();
 	window* getWind() const;
+	void saveGame();
+	void loadGame();
 	void adjustProductionTimersAfterPause(long pausedDuration);
 	void playBackgroundMusic();
 	void pauseBackgroundMusic();
