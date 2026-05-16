@@ -170,8 +170,7 @@ void Game::drawstatusbar() const
 	pWind->DrawString(440, y, "Current Animals: " + to_string(currentAnimals));
 	pWind->DrawString(760, y, "Eggs: " + to_string(eggsCount));
 	pWind->DrawString(930, y, "Milk: " + to_string(producedMilkCount));
-	if (timer == 0)
-	{
+	if (timer == 0) {
 		pWind->SetPen(RED, 1);
 		pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 		pWind->DrawString(500, y, "Game Over");
@@ -195,6 +194,11 @@ void Game::drawbudgetbar() const
 	}
 	else {
 		pWind->DrawString(660, y, "Auto-Seller: ACTIVE");
+	}
+	if (!hasAutoCollector) {
+	}
+	else {
+		pWind->DrawString(900, y, "Auto-Collector: ACTIVE");
 	}
 }
 clicktype Game::getMouseClick(int& x, int& y) const
@@ -339,9 +343,9 @@ void Game::addRandomAnimal(string animalType, int objectWidth, int objectHeight)
 	}
 }
 void Game::displayprices() {
-	pWind->DrawString(10, config.toolBarHeight + 30,"100$");
-	pWind->DrawString(2*config.toolbarItemWidth, config.toolBarHeight + 30, "200$");
-	pWind->DrawString(4 * config.toolbarItemWidth, config.toolBarHeight + 30, "100$");
+	pWind->DrawString(10, config.toolBarHeight + 30, "40$");
+	pWind->DrawString(2 * config.toolbarItemWidth, config.toolBarHeight + 30, "60$");
+	pWind->DrawString(4 * config.toolbarItemWidth, config.toolBarHeight + 30, "20$");
 }
 //void Game::addRandomWaterArea()
 //{
@@ -426,8 +430,7 @@ void Game::updateOneSecond()
 
 	if (budget >= goal) {
 		level++;
-		goal += 500;
-		budget = 1000;
+		goal += 250;
 		setInitialTimerByLevel();
 		levelChanged = true;
 	}
@@ -538,6 +541,7 @@ void Game::saveGame()
 	outFile << "EGGS " << eggsCount << "\n";
 	outFile << "MILK " << producedMilkCount << "\n";
 	outFile << "AUTOSELLER " << hasAutoSeller << "\n";
+	outFile << "AUTOCOLLECTOR " << hasAutoCollector << "\n";
 	outFile.close();
 	printMessage("Game Saved Successfully!");
 }
@@ -611,6 +615,7 @@ void Game::loadGame()
 	inFile >> label >> eggsCount;
 	inFile >> label >> producedMilkCount;
 	inFile >> label >> hasAutoSeller;
+	inFile >> label >> hasAutoCollector;
 	inFile.close();
 
 	lastWolfSpawnTime = CurrentTime();
@@ -671,7 +676,7 @@ void Game::go()
 		if (click != NO_CLICK && y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
 			gameBudgetbar->handleClick(x, y);
 		}
-		if (click != NO_CLICK && y >= 2 * config.toolBarHeight && y < 3 * config.toolBarHeight && x >= 660) {
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight && y < 3 * config.toolBarHeight && x >= 660 && x < 900) {
 			if (!hasAutoSeller && budget >= 300) {
 				budget -= 300;
 				hasAutoSeller = true;
@@ -680,6 +685,17 @@ void Game::go()
 			}
 			else if (!hasAutoSeller && budget < 300) {
 				printMessage("Insufficient Budget to buy Auto-Seller! Needs $300.");
+			}
+		}
+		if (click != NO_CLICK && y >= 2 * config.toolBarHeight && y < 3 * config.toolBarHeight && x >= 900) {
+			if (!hasAutoCollector && budget >= 300) {
+				budget -= 300;
+				hasAutoCollector = true;
+				drawbudgetbar();
+				printMessage("Successfully purchased Auto-Collector tool!");
+			}
+			else if (!hasAutoCollector && budget < 300) {
+				printMessage("Insufficient Budget to buy Auto-Collector! Needs $300.");
 			}
 		}
 		if (click != NO_CLICK && y >= 2 * config.toolBarHeight) {
@@ -917,6 +933,33 @@ void Game::go()
 				milkList[i]->draw();
 		}
 
+		if (hasAutoCollector) {
+			while (eggCount > 0) {
+				delete eggList[0];
+				for (int j = 0; j < eggCount - 1; j++) {
+					eggList[j] = eggList[j + 1];
+				}
+				eggList[eggCount - 1] = nullptr;
+				if (!randomNumE.empty()) {
+					randomNumE.erase(randomNumE.begin());
+				}
+				eggCount--;
+				eggsCount++;
+				drawstatusbar();
+			}
+
+			while (milkCount > 0) {
+				delete milkList[0];
+				for (int j = 0; j < milkCount - 1; j++) {
+					milkList[j] = milkList[j + 1];
+				}
+				milkList[milkCount - 1] = nullptr;
+				milkCount--;
+				producedMilkCount++;
+				drawstatusbar();
+			}
+		}
+
 		if (hasAutoSeller && eggsCount >= 10) {
 			budget += (10 * 20);
 			eggsCount -= 10;
@@ -996,6 +1039,7 @@ void Game::go()
 			}
 		}
 		drawstatusbar();
+		
 		pWind->UpdateBuffer();
 		displayprices();
 		Pause(30);
@@ -1004,13 +1048,13 @@ void Game::go()
 void Game::restartGame()
 {
 	clearDynamicObjects();
-	budget = 2000;
-	goal = 5000;
+	budget = 500;
+	goal = 750;
 	level = 1;
 	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
-	waterBuyingPrice = 100;
+	waterBuyingPrice = 20;
 	foodCount = 20;
 	foodAreaVisible = true;
 	eggsCount = 0;
@@ -1023,6 +1067,7 @@ void Game::restartGame()
 	paused = false;
 	restart = false;
 	hasAutoSeller = false;
+	hasAutoCollector = false;
 
 	gameBudgetbar->resetAnimals();
 
@@ -1039,16 +1084,17 @@ void Game::resetgame()
 {
 	clearDynamicObjects();
 	clearbackground();
-	budget = 2000;
-	goal = 5000;
+	budget = 500;
+	goal = 750;
 	level = 1;
 	setInitialTimerByLevel();
 	score = 0;
 	currentAnimals = 0;
-	waterBuyingPrice = 100;
+	waterBuyingPrice = 20;
 	paused = false;
 	restart = false;
 	hasAutoSeller = false;
+	hasAutoCollector = false;
 	foodCount = 20;
 	foodAreaVisible = true;
 	eggsCount = 0;

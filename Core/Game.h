@@ -57,21 +57,22 @@ private:
 
 public:
 	
-	int budget = 1000;
+	int budget = 500;
 	int timer = 120;
-	int goal = 1500;
+	int goal = 750;
 	int level = 1;
 	int score = 0;
 	int currentAnimals = 0;
-	int cowBuyingPrice = 200;
-	int chickBuyingPrice = 100;
-	int waterBuyingPrice = 100;
+	int cowBuyingPrice = 60;
+	int chickBuyingPrice = 40;
+	int waterBuyingPrice = 20;
 	int waterCounter = 0;
 	int maxCapcity = 20;
 	bool paused = false;
 	bool restart = false;
 	bool isExit = false;
 	bool hasAutoSeller = false;
+	bool hasAutoCollector = false;
 	int eggsCount = 0;
 	int producedMilkCount = 0;
 	int windEgg = 0;
