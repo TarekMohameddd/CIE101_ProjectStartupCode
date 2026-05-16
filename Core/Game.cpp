@@ -358,18 +358,18 @@ void Game::displayprices() {
 		}
 	}
 
-	pWind->SetPen(BLACK, 1);
+	pWind->SetPen(WHITE, 1);
 	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, config.toolBarHeight + 30, "100$");
-	pWind->DrawString(2 * config.toolbarItemWidth, config.toolBarHeight + 30, "200$");
-	pWind->DrawString(4 * config.toolbarItemWidth, config.toolBarHeight + 30, "100$");
+	pWind->DrawString(10, config.toolBarHeight + 30, "40$");
+	pWind->DrawString(2 * config.toolbarItemWidth, config.toolBarHeight + 30, "60$");
+	pWind->DrawString(4 * config.toolbarItemWidth, config.toolBarHeight + 30, "20$");
 
 	color BROWN(110, 65, 40);
 	pWind->SetPen(BROWN, 1);
 	pWind->SetBrush(BROWN);
 	pWind->DrawRectangle(290, config.toolBarHeight, 700, config.toolBarHeight + 30, FILLED);
 
-	pWind->SetPen(BLACK, 1);
+	pWind->SetPen(WHITE, 1);
 	pWind->DrawString(500, config.toolBarHeight + 5, "Owned Chicks: " + to_string(currentChicks));
 	pWind->DrawString(300, config.toolBarHeight + 5, "Owned Cows: " + to_string(currentCows));
 }
